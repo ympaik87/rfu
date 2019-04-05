@@ -7,6 +7,7 @@ def main(args):
     print('path', args.exp_path)
     print('except col', args.except_col)
     print('except row', args.except_row)
+    print('TC', args.tc, int(args.tc)-1)
     if args.is_onefile:
         print('is onefile')
     # _rfu = SrtRfu32(args.path)
@@ -25,6 +26,7 @@ if __name__ == '__main__':
     # parser.add_argument('-', '--except_col')
     parser.add_argument('-c', '--except_col')
     parser.add_argument('-r', '--except_row')
+    parser.add_argument('-t', '--tc', help='add total cycle. default is 45')
     subparsers = parser.add_subparsers(
         title='onefile', dest='is_onefile',
         description='get image processing result from a file')
