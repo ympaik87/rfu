@@ -1,9 +1,27 @@
 # PIX2RFU
 
 ## How to use
+### Make Datasheet in CFX96 format from the real-time PCR images.
+To create a datasheet from entire images
 ```
 $ python pix2rfu_32well.py "F:/path to experiment directory"
 ```
+It will create `DSP_datasheet` folder in the experiment path, and save datasheets according to the CFX96 format.
+
+if there are missing columns or rows
+```
+$ python pix2rfu_32well.py "F:/path to experiment directory" -c "numbers for missing cols" -r "numbers for missing rows"
+```
+Note: Numbers for missing cols and rows should be typed without spaces
+
+### Get image recognition result from one image
+
+To look into the image processing result
+```
+$ python pix2rfu_32well.py "F:/path to experiment directory" -i <temp> <dye> <cycle> <well>
+```
+where `temp` is Low or High, `dye` is one of `['f', 'h', 'c', 'q6', 'q7']`, well is well name such as A1 and b3, and cycle is a number between 1 to TC (total cycle)
+
 
 ## Requirements
 ### Environment

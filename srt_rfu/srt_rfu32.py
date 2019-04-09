@@ -1,7 +1,8 @@
 import pathlib
 import xlsxwriter
 import datetime
-from skimage.filters import threshold_otsu
+import time
+from skimage.filters import threshold_mean
 from skimage.measure import regionprops, label
 from skimage.morphology import closing, opening, disk
 from skimage.segmentation import clear_border
@@ -11,6 +12,30 @@ import pandas as pd
 from PIL import Image
 import matplotlib.pyplot as plt
 from matplotlib import patches
+
+
+def printProgressBar(iteration, total, prefix='', suffix='', decimals=1,
+                     length=50, fill='#'):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals
+                                  in percent complete (Int)
+        length      - Optional  : character length of bar (Int)
+        fill        - Optional  : bar fill character (Str)
+    """
+    percent = ("{0:." + str(decimals) + "f}").format(
+        100 * (iteration / float(total)))
+    filledLength = int(length * iteration // total)
+    bar = fill * filledLength + '-' * (length - filledLength)
+    print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end='\r')
+    # Print New Line on Complete
+    if iteration == total:
+        print()
 
 
 class SrtRfu32:
@@ -54,14 +79,14 @@ class SrtRfu32:
                 distance = np.linalg.norm(pts_given-pts_center)
                 if distance < radius:
                     return well, radius
-        return None
+        return None, None
 
     def calculate_rfu(self, region_dic, cam, ax=None):
         "calculate RFU by image"
         region_sum_dict = {}
         for key in self.grid[cam].keys():
             region_sum_dict[key] = 0
-        areas_li = list(region_dic.keys()).sort(reverse=True)
+        areas_li = sorted(list(region_dic.keys()), reverse=True)
         center_at_cycle = {}
         circle_li = []
         for area in areas_li:
@@ -95,12 +120,16 @@ class SrtRfu32:
                 ax.add_artist(circle)
         return region_sum_dict
 
+    def open_im(self, im_path):
+        "open images. can add rotation for 96well"
+        return np.array(Image.open(im_path))
+
     def label_image(self, im_path):
-        im = np.array(Image.open(im_path))
+        im = self.open_im(im_path)
         im_cropped = im[self.x_range, self.y_range]
 
         im_gray = im_cropped.sum(axis=2)
-        thresh = threshold_otsu(im_gray)
+        thresh = threshold_mean(im_gray)
         threshed_im = im_gray > thresh
 
         bw = closing(threshed_im, disk(3))
@@ -121,21 +150,21 @@ class SrtRfu32:
     def set_grid_single(self, im_path, idx):
         im_labeled, im_gray = self.label_image(im_path)
         region_dic = self.get_region_dic(im_labeled, im_gray)
-        areas_li = list(region_dic.keys()).sort(reverse=True)
+        areas_li = sorted(list(region_dic.keys()), reverse=True)
         bbox_key_li = ['minr', 'minc', 'maxr', 'maxc']
         bbox_dic = {}
         for key in bbox_key_li:
             bbox_dic[key] = []
-        for key2 in areas_li[:16]:
+        for key2 in areas_li:
             region = region_dic[key2]
             bbox_li = region.bbox
             for i, k in enumerate(bbox_key_li):
-                bbox_dic[k] = bbox_li[i]
+                bbox_dic[k] += [bbox_li[i]]
         well_box = []
         for key3 in bbox_key_li[:2]:
-            well_box.append(bbox_dic[key3].sort()[0]-50)
+            well_box.append(sorted(bbox_dic[key3])[0]-50)
         for key4 in bbox_key_li[2:]:
-            well_box.append(bbox_dic[key4].sort()[-1]+50)
+            well_box.append(sorted(bbox_dic[key4])[-1]+50)
         x_li = np.linspace(well_box[1], well_box[3], 5, endpoint=True)
         y_li = np.linspace(well_box[0], well_box[2], 5, endpoint=True)
         pts_li = [(x, y) for x in x_li for y in y_li]
@@ -150,6 +179,11 @@ class SrtRfu32:
 
     def make_rfu_table(self, tc=44):
         "concatenate rfu by camera, dye, temp, cycle"
+        print('Start creating RFU datatable')
+        t = time.time()
+        total_num = len(self.temp_li) * len(self.ch_dict) * (tc + 1) * len(
+            self.cam_keys)
+        prog = 1
         self.rfu_dict = {}
         for ind, temp in enumerate(self.temp_li):
             self.rfu_dict[temp] = {}
@@ -164,18 +198,27 @@ class SrtRfu32:
                         region_dic = self.get_region_dic(im_labeled, im_gray)
                         _rfu = self.calculate_rfu(region_dic, cam)
                         _dic.update(_rfu)
+                        prog += 1
+                        printProgressBar(
+                            prog, total_num, 'RFU table progress:', 'Complete')
                     _dic2[cycle+1] = _dic
                 self.rfu_dict[temp][dye] = pd.DataFrame(_dic2).T
+        printProgressBar(
+            total_num, total_num, 'RFU table progress:', 'Complete')
+        print('\nFinish creating RFU table in {}s'.format(time.time()-t))
 
     def make_end_point_results(self, path):
         suffix = ' -  End Point Results.xlsx'
         well_li = [
             x+'0'+str(y+1) for x in list('ABCD') for y in range(8)][::-1]
-        with xlsxwriter.Workbook(path/(self.exp_path.name+suffix)) as writer:
+        with xlsxwriter.Workbook(
+                str(path/(self.exp_path.name+suffix))) as writer:
             ws = writer.add_worksheet()
             ws.write(0, 1, 'Well')
+            ws.write(0, 3, 'Content')
             for i, well in enumerate(well_li):
                 ws.write(i+1, 1, well)
+                ws.write(i+1, 3, 'Unkn')
 
     def get_datasheet(self, tc=44):
         "save rfu table as xlsx for DSP analysis"
@@ -191,8 +234,11 @@ class SrtRfu32:
         res_dir.mkdir()
         for ind, temp in enumerate(self.temp_li):
             qs_path = res_dir/qs_li[ind]
-            with pd.ExcelWriter(qs_path/(self.exp_path.name+suffix)) as writer:
+            qs_path.mkdir()
+            with pd.ExcelWriter(
+                    str(qs_path/(self.exp_path.name+suffix))) as writer:
                 for dye, df in self.rfu_dict[temp].items():
+                    df = df.reset_index().rename(columns={'index': 'Cycle'})
                     df.to_excel(writer, sheet_name=dye)
             self.make_end_point_results(qs_path)
 
