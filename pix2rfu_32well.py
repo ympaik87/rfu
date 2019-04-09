@@ -5,14 +5,14 @@ from srt_rfu.srt_rfu32 import SrtRfu32
 def main(args):
     print(args)
     print('path', args.exp_path)
-    print('except col', args.except_col)
-    print('except row', args.except_row)
+    print('except col', args.exempt_col)
+    print('except row', args.exempt_row)
     if args.is_onefile:
         print('is onefile')
     _rfu = SrtRfu32(args.exp_path)
     if args.tc:
         print('TC', args.tc, int(args.tc)-1)
-        tc = int(args.tc) - 1
+        tc = int(args.tc)
         _rfu.get_datasheet(tc)
     else:
         _rfu.get_datasheet()
@@ -27,9 +27,8 @@ if __name__ == '__main__':
         'exp_path', help='Path of the experiment directory, '
         'which contains main and sub folders for result images. '
         'If there are spaces within the path, add quotation marks.')
-    # parser.add_argument('-', '--except_col')
-    parser.add_argument('-c', '--except_col')
-    parser.add_argument('-r', '--except_row')
+    parser.add_argument('-c', '--exempt_col')
+    parser.add_argument('-r', '--exempt_row')
     parser.add_argument('-t', '--tc', help='add total cycle. default is 45')
     subparsers = parser.add_subparsers(
         title='onefile', dest='is_onefile',

@@ -2,6 +2,7 @@ import pathlib
 import xlsxwriter
 import datetime
 import time
+from collections import OrderedDict
 from skimage.filters import threshold_mean
 from skimage.measure import regionprops, label
 from skimage.morphology import closing, opening, disk
@@ -45,13 +46,13 @@ class SrtRfu32:
         self.x_range = slice(500, 1800)
         self.y_range = slice(500, 1800)
         self.colors_li = [plt.cm.get_cmap('hsv', 30)(i) for i in range(30)]
-        self.ch_dict = {
-            'c': 'Cal Red 610',
+        self.ch_dict = OrderedDict({
             'f': 'FAM',
+            'h': 'HEX',
+            'c': 'Cal Red 610',
             'q6': 'Quasar 670',
             'q7': 'Quasar 705',
-            'h': 'HEX'
-        }
+        })
         self.row_name = list('ABCD')
         self.cam_keys = ['main', 'sub']
 
@@ -137,13 +138,13 @@ class SrtRfu32:
         cleared = clear_border(bw2)
         return label(cleared), im_gray
 
-    def set_grid(self, tc=44):
+    def set_grid(self, tc=45):
         "get grid by camera from the last cycle"
         self.grid = {'main': {}, 'sub': {}}
         main_grid_im_path = self.exp_path/'{}/{}_0_f.jpg'.format(
-            self.cam_keys[0], tc)
+            self.cam_keys[0], tc-1)
         sub_grid_im_path = self.exp_path/'{}/{}_0_f.jpg'.format(
-            self.cam_keys[1], tc)
+            self.cam_keys[1], tc-1)
         for idx, im_path in enumerate([main_grid_im_path, sub_grid_im_path]):
             self.set_grid_single(im_path, idx)
 
@@ -177,12 +178,11 @@ class SrtRfu32:
                 top_left_pt[1], top_left_pt[0],
                 bottom_right_pt[1], bottom_right_pt[0]]
 
-    def make_rfu_table(self, tc=44):
+    def make_rfu_table(self, tc=45):
         "concatenate rfu by camera, dye, temp, cycle"
         print('Start creating RFU datatable')
         t = time.time()
-        total_num = len(self.temp_li) * len(self.ch_dict) * (tc + 1) * len(
-            self.cam_keys)
+        total_num = len(self.temp_li)*len(self.ch_dict)*tc*len(self.cam_keys)
         prog = 1
         self.rfu_dict = {}
         for ind, temp in enumerate(self.temp_li):
@@ -220,7 +220,7 @@ class SrtRfu32:
                 ws.write(i+1, 1, well)
                 ws.write(i+1, 3, 'Unkn')
 
-    def get_datasheet(self, tc=44):
+    def get_datasheet(self, tc=45):
         "save rfu table as xlsx for DSP analysis"
         suffix = ' -  Quantitation Amplification Results.xlsx'
         qs_li = ['QuantStep60', 'QuantStep72']
@@ -237,12 +237,13 @@ class SrtRfu32:
             qs_path.mkdir()
             with pd.ExcelWriter(
                     str(qs_path/(self.exp_path.name+suffix))) as writer:
-                for dye, df in self.rfu_dict[temp].items():
+                for dye in self.ch_dict.values():
+                    df = self.rfu_dict[temp][dye]
                     df = df.reset_index().rename(columns={'index': 'Cycle'})
                     df.to_excel(writer, sheet_name=dye)
             self.make_end_point_results(qs_path)
 
-    def get_onef_result(self, tmp, dye, cycle, well, tc=44):
+    def get_onef_result(self, tmp, dye, cycle, well, tc=45):
         "save image processing result in image file (by cycle)"
         self.set_grid(tc=tc)
         if 'low' in tmp.lower():
