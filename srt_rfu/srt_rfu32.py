@@ -203,9 +203,7 @@ class SrtRfu32:
                             prog, total_num, 'RFU table progress:', 'Complete')
                     _dic2[cycle+1] = _dic
                 self.rfu_dict[temp][dye] = pd.DataFrame(_dic2).T
-        printProgressBar(
-            total_num, total_num, 'RFU table progress:', 'Complete')
-        print('\nFinish creating RFU table in {}s'.format(time.time()-t))
+        print('\nFinish creating RFU table in {} sec.'.format(time.time()-t))
 
     def make_end_point_results(self, path):
         suffix = ' -  End Point Results.xlsx'
