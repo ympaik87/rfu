@@ -1,3 +1,4 @@
+import subprocess
 import pathlib
 import xlsxwriter
 import datetime
@@ -55,6 +56,8 @@ class SrtRfu32:
         })
         self.row_name = list('ABCD')
         self.cam_keys = ['main', 'sub']
+        self.version = subprocess.check_output(
+            ['git', 'rev-parse', '--short', 'HEAD']).decode('utf-8').strip()
 
     def get_region_dic(self, im_labeled, im_gray):
         region_dic = {}
@@ -81,6 +84,11 @@ class SrtRfu32:
                 if distance < radius:
                     return well, radius
         return None, None
+
+    def plot_grid(self, cam, ax):
+        for pts in self.grid[cam].values():
+            ax.scatter(pts[1], pts[0], c='g')
+            ax.scatter(pts[3], pts[2], c='g')
 
     def calculate_rfu(self, region_dic, cam, ax=None):
         "calculate RFU by image"
@@ -117,6 +125,7 @@ class SrtRfu32:
             elif ax:
                 ax.plot(x, y, color='b', marker='x')
         if ax:
+            self.plot_grid(cam, ax)
             for circle in circle_li:
                 ax.add_artist(circle)
         return region_sum_dict
@@ -254,23 +263,24 @@ class SrtRfu32:
         else:
             cam = self.cam_keys[1]
         im_path = self.exp_path/'{}/{}_{}_{}.jpg'.format(
-            cam, cycle, ind, dye)
+            cam, int(cycle)-1, ind, dye)
         im_labeled, im_gray = self.label_image(im_path)
         image_label_overlay = label2rgb(
             im_labeled, bg_label=0, colors=self.colors_li)
         region_dic = self.get_region_dic(im_labeled, im_gray)
 
         fig, ax = plt.subplots(2, 2, figsize=(12, 12))
+        fig.suptitle('{} {} ver.'.format(im_path.name, self.version))
         ax[0, 0].imshow(self.open_im(im_path))
-        ax[0, 0].set_title('{}'.format(im_path.name))
+        ax[0, 0].set_title('Original')
         ax[0, 1].imshow(im_gray)
-        ax[0, 1].set_title('{} Gray'.format(im_path.name))
-        ax[1, 0].imshow(im_labeled)
-        ax[1, 0].set_title('{} Labeled'.format(im_path.name))
+        ax[0, 1].set_title('Gray')
+        ax[1, 0].imshow(image_label_overlay)
+        ax[1, 0].set_title('Labeled')
         ax[1, 1].imshow(image_label_overlay)
         self.calculate_rfu(region_dic, cam, ax[1, 1])
-        ax[1, 1].set_title('{} Processed Result'.format(im_path.name))
+        ax[1, 1].set_title('Processed Result')
         plt.tight_layout()
         plt.savefig(
             str(self.exp_path/'Processed_result_{}_{}_{}_{}.jpg'.format(
-                cam, cycle, ind, dye)))
+                cam, int(cycle)-1, ind, dye)))

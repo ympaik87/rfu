@@ -1,4 +1,5 @@
 import argparse
+import subprocess
 from srt_rfu.srt_rfu32 import SrtRfu32
 
 
@@ -25,7 +26,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Convert image results from SRT to RFU formatted'
         'for DSP analysis')
-    parser.add_argument('-v', '--version', action='version', version='0.0.1')
+    version = subprocess.check_output(
+        ['git', 'rev-parse', '--short', 'HEAD']).decode('utf-8').strip()
+    parser.add_argument('-v', '--version', action='version', version=version)
     parser.add_argument(
         'exp_path', help='Path of the experiment directory, '
         'which contains main and sub folders for result images. '
