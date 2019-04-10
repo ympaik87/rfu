@@ -132,7 +132,7 @@ class SrtRfu32:
         sub_grid_im_path = self.exp_path/'{}/{}_0_f.jpg'.format(
             self.cam_keys[1], tc-1)
         for idx, im_path in enumerate([main_grid_im_path, sub_grid_im_path]):
-            self.set_grid_single(im_path, idx)
+            self.grid[self.cam_keys[idx]] = self.set_grid_single(im_path, idx)
 
     def set_grid_single(self, im_path, idx):
         im_labeled, im_gray = self.label_image(im_path)
@@ -155,6 +155,7 @@ class SrtRfu32:
         x_li = np.linspace(well_box[1], well_box[3], 5, endpoint=True)
         y_li = np.linspace(well_box[0], well_box[2], 5, endpoint=True)
         pts_li = [(x, y) for x in x_li for y in y_li]
+        grid = {}
         for ind in range(19):
             i, j = divmod(ind, 5)
             if j == 4:
@@ -162,9 +163,9 @@ class SrtRfu32:
             top_left_pt = pts_li[ind]
             bottom_right_pt = pts_li[ind+6]
             well = self.row_name[j] + str(i+1+idx*4)
-            self.grid[self.cam_keys[idx]][well] = [
-                top_left_pt[1], top_left_pt[0],
-                bottom_right_pt[1], bottom_right_pt[0]]
+            grid[well] = [top_left_pt[1], top_left_pt[0],
+                          bottom_right_pt[1], bottom_right_pt[0]]
+        return grid
 
     def make_rfu_table(self, tc=45):
         "concatenate rfu by camera, dye, temp, cycle"
