@@ -262,5 +262,5 @@ class SrtRfu32:
         self.calculate_rfu(region_dic, cam, ax[1, 1])
         ax[1, 1].set_title('Processed Result')
         plt.savefig(
-            str(self.exp_path/'Processed_result-{}_{}_{}_{}.jpg'.format(
-                cam, int(cycle)-1, ind, dye)))
+            str(self.exp_path/'Result_{}-{}_{}_{}_{}.jpg'.format(
+                self.version, cam, int(cycle)-1, ind, dye)))
