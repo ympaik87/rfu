@@ -14,30 +14,7 @@ import pandas as pd
 from PIL import Image
 import matplotlib.pyplot as plt
 from matplotlib import patches
-
-
-def printProgressBar(iteration, total, prefix='', suffix='', decimals=1,
-                     length=50, fill='#'):
-    """
-    Call in a loop to create terminal progress bar
-    @params:
-        iteration   - Required  : current iteration (Int)
-        total       - Required  : total iterations (Int)
-        prefix      - Optional  : prefix string (Str)
-        suffix      - Optional  : suffix string (Str)
-        decimals    - Optional  : positive number of decimals
-                                  in percent complete (Int)
-        length      - Optional  : character length of bar (Int)
-        fill        - Optional  : bar fill character (Str)
-    """
-    percent = ("{0:." + str(decimals) + "f}").format(
-        100 * (iteration / float(total)))
-    filledLength = int(length * iteration // total)
-    bar = fill * filledLength + '-' * (length - filledLength)
-    print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end='\r')
-    # Print New Line on Complete
-    if iteration == total:
-        print()
+from srt_rfu.progress_bar import printProgressBar
 
 
 class SrtRfu32:
@@ -160,7 +137,7 @@ class SrtRfu32:
     def set_grid_single(self, im_path, idx):
         im_labeled, im_gray = self.label_image(im_path)
         region_dic = self.get_region_dic(im_labeled, im_gray)
-        areas_li = sorted(list(region_dic.keys()), reverse=True)
+        areas_li = sorted(list(region_dic.keys()), reverse=True)[:16]
         bbox_key_li = ['minr', 'minc', 'maxr', 'maxc']
         bbox_dic = {}
         for key in bbox_key_li:
@@ -178,12 +155,14 @@ class SrtRfu32:
         x_li = np.linspace(well_box[1], well_box[3], 5, endpoint=True)
         y_li = np.linspace(well_box[0], well_box[2], 5, endpoint=True)
         pts_li = [(x, y) for x in x_li for y in y_li]
-        for ind in range(16):
+        for ind in range(19):
+            i, j = divmod(ind, 5)
+            if j == 4:
+                continue
             top_left_pt = pts_li[ind]
             bottom_right_pt = pts_li[ind+6]
-            i, j = divmod(ind, 4)
-            key5 = self.row_name[i] + str(j+1+idx*4)
-            self.grid[self.cam_keys[idx]][key5] = [
+            well = self.row_name[j] + str(i+1+idx*4)
+            self.grid[self.cam_keys[idx]][well] = [
                 top_left_pt[1], top_left_pt[0],
                 bottom_right_pt[1], bottom_right_pt[0]]
 

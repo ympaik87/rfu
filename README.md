@@ -4,6 +4,8 @@
 ### Make Datasheet in CFX96 format from the real-time PCR images.
 To create a datasheet from entire images
 ```
+$ activate rfu
+$ cd rfu
 $ python pix2rfu_32well.py "F:/path to experiment directory"
 ```
 It will create `DSP_datasheet` folder in the experiment path, and save datasheets according to the CFX96 format.
