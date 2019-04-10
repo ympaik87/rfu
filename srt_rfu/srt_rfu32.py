@@ -250,7 +250,6 @@ class SrtRfu32:
             ind = 0
         else:
             ind = 1
-        ind = self.temp_li.index(tmp)
         col = int(well[-1])
         if 0 <= col < 5:
             cam = self.cam_keys[0]
@@ -263,11 +262,17 @@ class SrtRfu32:
             im_labeled, bg_label=0, colors=self.colors_li)
         region_dic = self.get_region_dic(im_labeled, im_gray)
 
-        fig, ax = plt.subplots(1, 3, figsize=(24, 12))
-        ax[0, 0].imshow(im_gray)
-        ax[0, 1].imshow(im_labeled)
-        ax[0, 2].imshow(image_label_overlay)
-        self.calculate_rfu(region_dic, cam, ax[0, 2])
+        fig, ax = plt.subplots(2, 2, figsize=(12, 12))
+        ax[0, 0].imshow(self.open_im(im_path))
+        ax[0, 0].set_title('{}'.format(im_path.name))
+        ax[0, 1].imshow(im_gray)
+        ax[0, 1].set_title('{} Gray'.format(im_path.name))
+        ax[1, 0].imshow(im_labeled)
+        ax[1, 0].set_title('{} Labeled'.format(im_path.name))
+        ax[1, 1].imshow(image_label_overlay)
+        self.calculate_rfu(region_dic, cam, ax[1, 1])
+        ax[1, 1].set_title('{} Processed Result'.format(im_path.name))
         plt.tight_layout()
-        plt.savefig(self.exp_path/'Processed_result_{}_{}_{}_{}.jpg'.format(
-            cam, cycle, ind, dye))
+        plt.savefig(
+            str(self.exp_path/'Processed_result_{}_{}_{}_{}.jpg'.format(
+                cam, cycle, ind, dye)))

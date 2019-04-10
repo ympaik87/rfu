@@ -7,15 +7,18 @@ def main(args):
     print('path', args.exp_path)
     print('except col', args.exempt_col)
     print('except row', args.exempt_row)
-    if args.is_onefile:
-        print('is onefile')
-    _rfu = SrtRfu32(args.exp_path)
     if args.tc:
-        print('TC', args.tc, int(args.tc)-1)
+        print('TC', args.tc)
         tc = int(args.tc)
-        _rfu.get_datasheet(tc)
     else:
-        _rfu.get_datasheet()
+        tc = 45
+    _rfu = SrtRfu32(args.exp_path)
+    if args.is_onefile:
+        print('is onefile', args.temp, args.dye, args.cycle, args.well)
+        _rfu.get_onef_result(
+            args.temp, args.dye, args.cycle, args.well, tc=tc)
+    else:
+        _rfu.get_datasheet(tc)
 
 
 if __name__ == '__main__':

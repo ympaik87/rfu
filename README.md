@@ -18,9 +18,9 @@ Note: Numbers for missing cols and rows should be typed without spaces
 
 To look into the image processing result
 ```
-$ python pix2rfu_32well.py "F:/path to experiment directory" -i <temp> <dye> <cycle> <well>
+$ python pix2rfu_32well.py "F:/path to experiment directory" i <temp> <dye> <cycle> <well>
 ```
-where `temp` is Low or High, `dye` is one of `['f', 'h', 'c', 'q6', 'q7']`, well is well name such as A1 and b3, and cycle is a number between 1 to TC (total cycle)
+where `temp` is Low or High, `dye` is one of `['f', 'h', 'c', 'q6', 'q7']`, well is well name such as A1 and b3, and cycle is a number between 1 to TC (total cycle). 
 
 
 ## Requirements
