@@ -195,7 +195,7 @@ class SrtRfu32:
         print('\nFinish creating RFU table in {} sec.'.format(time.time()-t))
 
     def make_end_point_results(self, path):
-        suffix = ' -  End Point Results.xlsx'
+        suffix = ' {} -  End Point Results.xlsx'.format(self.version)
         well_li = [
             x+'0'+str(y+1) for x in list('ABCD') for y in range(8)][::-1]
         with xlsxwriter.Workbook(
