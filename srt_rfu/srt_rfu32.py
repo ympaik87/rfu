@@ -108,7 +108,7 @@ class SrtRfu32:
         return region_sum_dict
 
     def open_im(self, im_path):
-        "open images. can add rotation for 96well"
+        "open images. Designed for adding image rotation for 96well"
         return np.array(Image.open(im_path))
 
     def label_image(self, im_path):
@@ -208,7 +208,8 @@ class SrtRfu32:
 
     def get_datasheet(self, tc=45):
         "save rfu table as xlsx for DSP analysis"
-        suffix = ' -  Quantitation Amplification Results.xlsx'
+        suffix = ' {} -  Quantitation Amplification Results.xlsx'.format(
+            self.version)
         qs_li = ['QuantStep60', 'QuantStep72']
         self.set_grid(tc=tc)
         self.make_rfu_table(tc=tc)
