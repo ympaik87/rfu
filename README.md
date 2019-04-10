@@ -42,7 +42,9 @@ Cycle number | Any number between 1 and total cycle. e.g. `2`
 
 ### Installation with virtual environment (Windows)
 ```
+$ git clone https://github.com/ympaik87/rfu.git
 $ conda create -n rfu python=3.5.3
 $ activate rfu
+$ cd rfu
 $ pip install -r requirements.txt
 ```

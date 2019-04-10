@@ -269,8 +269,8 @@ class SrtRfu32:
             im_labeled, bg_label=0, colors=self.colors_li)
         region_dic = self.get_region_dic(im_labeled, im_gray)
 
-        fig, ax = plt.subplots(2, 2, figsize=(12, 12))
-        fig.suptitle('{} {} ver.'.format(im_path.name, self.version))
+        fig, ax = plt.subplots(2, 2, figsize=(12, 12), constrained_layout=True)
+        fig.suptitle('{} - ({} ver.)'.format(im_path.name, self.version))
         ax[0, 0].imshow(self.open_im(im_path))
         ax[0, 0].set_title('Original')
         ax[0, 1].imshow(im_gray)
@@ -280,7 +280,6 @@ class SrtRfu32:
         ax[1, 1].imshow(image_label_overlay)
         self.calculate_rfu(region_dic, cam, ax[1, 1])
         ax[1, 1].set_title('Processed Result')
-        plt.tight_layout()
         plt.savefig(
-            str(self.exp_path/'Processed_result_{}_{}_{}_{}.jpg'.format(
+            str(self.exp_path/'Processed_result-{}_{}_{}_{}.jpg'.format(
                 cam, int(cycle)-1, ind, dye)))
