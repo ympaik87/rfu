@@ -270,7 +270,7 @@ class SrtRfu32:
         region_dic = self.get_region_dic(im_labeled, im_gray)
 
         fig, ax = plt.subplots(2, 2, figsize=(12, 12), constrained_layout=True)
-        fig.suptitle('{} - ({} ver.)'.format(im_path.name, self.version))
+        fig.suptitle('{} - (Version {})'.format(im_path.name, self.version))
         ax[0, 0].imshow(self.open_im(im_path))
         ax[0, 0].set_title('Original')
         ax[0, 1].imshow(im_gray)
