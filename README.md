@@ -32,7 +32,7 @@ FAM | `f`
 HEX | `h`
 Cal Red 610 | `c`
 Quasar 670 | `q6`
-Quasar 720 | `q7`
+Quasar 705 | `q7`
 Well name | `A1`, `a1`, `a01`, `A01`
 Cycle number | Any number from 1 to total cycle. e.g. `2`
 

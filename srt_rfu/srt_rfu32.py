@@ -21,8 +21,8 @@ class SrtRfu32:
     def __init__(self, exp_path):
         self.exp_path = pathlib.Path(exp_path)
         self.temp_li = ['Low Temp', 'High Temp']
-        self.x_range = slice(500, 1800)
-        self.y_range = slice(500, 1800)
+        self.y_range = slice(700, 2100)
+        self.x_range = slice(300, 1700)
         self.colors_li = [plt.cm.get_cmap('hsv', 30)(i) for i in range(30)]
         self.ch_dict = OrderedDict({
             'f': 'FAM',
@@ -113,16 +113,16 @@ class SrtRfu32:
 
     def label_image(self, im_path):
         im = self.open_im(im_path)
-        im_cropped = im[self.x_range, self.y_range]
+        im_cropped = im[self.y_range, self.x_range]
 
         im_gray = im_cropped.sum(axis=2)
-        thresh = threshold_mean(im_gray)
+        cleared = clear_border(im_gray)
+        thresh = threshold_mean(cleared)
         threshed_im = im_gray > thresh
 
         bw = closing(threshed_im, disk(3))
         bw2 = opening(bw, disk(3))
-        cleared = clear_border(bw2)
-        return label(cleared), im_gray
+        return label(bw2), im_gray
 
     def set_grid(self, tc=45):
         "get grid by camera from the last cycle"
@@ -134,7 +134,7 @@ class SrtRfu32:
         for idx, im_path in enumerate([main_grid_im_path, sub_grid_im_path]):
             self.grid[self.cam_keys[idx]] = self.set_grid_single(im_path, idx)
 
-    def set_grid_single(self, im_path, idx):
+    def set_grid_single(self, im_path, idx=0):
         im_labeled, im_gray = self.label_image(im_path)
         region_dic = self.get_region_dic(im_labeled, im_gray)
         areas_li = sorted(list(region_dic.keys()), reverse=True)[:16]
@@ -218,7 +218,7 @@ class SrtRfu32:
         if res_dir.exists():
             res_dir = self.exp_path/(
                 'DSP_datasheet' + datetime.datetime.now().strftime(
-                    '_%Y%m%d_%H%M%S'))
+                    '_%y%m%d_%H%M%S'))
         res_dir.mkdir()
         for ind, temp in enumerate(self.temp_li):
             qs_path = res_dir/qs_li[ind]
@@ -250,6 +250,13 @@ class SrtRfu32:
             im_labeled, bg_label=0, colors=self.colors_li)
         region_dic = self.get_region_dic(im_labeled, im_gray)
 
+        outf_path = self.exp_path/'Result_{}-{}_{}_{}_{}.jpg'.format(
+            self.version, cam, int(cycle)-1, ind, dye)
+        if outf_path.exists():
+            outf_path = self.exp_path/('Result_{}-{}_{}_{}_{}'.format(
+                self.version, cam, int(cycle)-1, ind, dye) +
+                datetime.datetime.now().strftime('_%y%m%d_%H%M%S') + '.jpg')
+
         fig, ax = plt.subplots(2, 2, figsize=(12, 12), constrained_layout=True)
         fig.suptitle('{} - (Version {})'.format(im_path.name, self.version))
         ax[0, 0].imshow(self.open_im(im_path))
@@ -261,6 +268,4 @@ class SrtRfu32:
         ax[1, 1].imshow(image_label_overlay)
         self.calculate_rfu(region_dic, cam, ax[1, 1])
         ax[1, 1].set_title('Processed Result')
-        plt.savefig(
-            str(self.exp_path/'Result_{}-{}_{}_{}_{}.jpg'.format(
-                self.version, cam, int(cycle)-1, ind, dye)))
+        plt.savefig(str(outf_path))
