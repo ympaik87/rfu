@@ -12,9 +12,9 @@ It will create `DSP_datasheet` folder in the experiment path, and save datasheet
 
 if there are missing columns or rows
 ```
-$ python pix2rfu_32well.py "F:/path to experiment directory" -c <numbers for missing cols> -r <numbers for missing rows>
+$ python pix2rfu_32well.py "F:/path to experiment directory" -c <numbers of missing cols> -r <numbers of missing rows>
 ```
-Note: Numbers for missing cols and rows should be typed without spaces
+Note: Numbers of missing cols and rows should be typed without spaces
 
 ### Get image recognition result from one image
 
