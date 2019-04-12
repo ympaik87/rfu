@@ -21,8 +21,8 @@ class SrtRfu32:
     def __init__(self, exp_path):
         self.exp_path = pathlib.Path(exp_path)
         self.temp_li = ['Low Temp', 'High Temp']
-        self.y_range = slice(700, 2100)
-        self.x_range = slice(300, 1700)
+        self.y_range = slice(600, 2200)
+        self.x_range = slice(400, 2000)
         self.colors_li = [plt.cm.get_cmap('hsv', 30)(i) for i in range(30)]
         self.ch_dict = OrderedDict({
             'f': 'FAM',
@@ -262,6 +262,12 @@ class SrtRfu32:
         fig, ax = plt.subplots(2, 3, figsize=(18, 12), constrained_layout=True)
         fig.suptitle('{} - (Version {})'.format(im_path.name, self.version))
         ax[0, 0].imshow(self.open_im(im_path))
+        rect = patches.Rectangle(
+            (self.x_range.start, self.y_range.start),
+            self.x_range.stop-self.x_range.start,
+            self.y_range.stop-self.y_range.start,
+            edgecolor='r', facecolor='none')
+        ax[0, 0].add_patch(rect)
         ax[0, 0].set_title('Original')
         ax[0, 1].imshow(im_gray)
         ax[0, 1].set_title('Gray')
