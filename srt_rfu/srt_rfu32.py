@@ -241,8 +241,10 @@ class SrtRfu32:
         col = int(well[-1])
         if 0 <= col < 5:
             cam = self.cam_keys[0]
+            col = list(range(1, 5))
         else:
             cam = self.cam_keys[1]
+            col = list(range(5, 9))
         im_path = self.exp_path/'{}/{}_{}_{}.jpg'.format(
             cam, int(cycle)-1, ind, dye)
         im_labeled, im_gray = self.label_image(im_path)
@@ -255,9 +257,9 @@ class SrtRfu32:
         if outf_path.exists():
             outf_path = self.exp_path/('Result_{}-{}_{}_{}_{}'.format(
                 self.version, cam, int(cycle)-1, ind, dye) +
-                datetime.datetime.now().strftime('_%y%m%d_%H%M%S') + '.jpg')
+                datetime.datetime.now().strftime('-%y%m%d_%H%M%S') + '.jpg')
 
-        fig, ax = plt.subplots(2, 2, figsize=(12, 12), constrained_layout=True)
+        fig, ax = plt.subplots(2, 3, figsize=(18, 12), constrained_layout=True)
         fig.suptitle('{} - (Version {})'.format(im_path.name, self.version))
         ax[0, 0].imshow(self.open_im(im_path))
         ax[0, 0].set_title('Original')
@@ -266,6 +268,24 @@ class SrtRfu32:
         ax[1, 0].imshow(image_label_overlay)
         ax[1, 0].set_title('Labeled')
         ax[1, 1].imshow(image_label_overlay)
-        self.calculate_rfu(region_dic, cam, ax[1, 1])
+        region_sum_dict = self.calculate_rfu(region_dic, cam, ax[1, 1])
         ax[1, 1].set_title('Processed Result')
+
+        table_cell = []
+        for r in self.row_name:
+            _li = []
+            for c in col:
+                _li.append(region_sum_dict[r+str(c)])
+            table_cell.append(_li)
+        ax[0, 2].axis('off')
+        ax[0, 2].axis('auto')
+        gs = ax[0, 2].get_gridspec()
+        for a in ax[1:, 2]:
+            a.remove()
+        axbig = fig.add_subplot(gs[0:, 2])
+        table = axbig.table(cellText=table_cell, colLabels=col,
+                            rowLabels=self.row_name, loc='center')
+        table.auto_set_column_width(list(range(4)))
+        axbig.axis('off')
+        axbig.axis('auto')
         plt.savefig(str(outf_path))

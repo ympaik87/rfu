@@ -50,3 +50,8 @@ $ activate rfu
 $ cd rfu
 $ pip install -r requirements.txt
 ```
+
+### To update the code
+```
+$ git pull
+```
