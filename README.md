@@ -14,7 +14,7 @@ if there are missing columns or rows
 ```
 $ python pix2rfu_32well.py "F:/path to experiment directory" -c <numbers of missing cols> -r <numbers of missing rows>
 ```
-Note: Numbers of missing cols and rows should be typed without spaces
+Note: Numbers of missing cols and rows must be typed without spaces
 
 ### Get image recognition result from one image
 

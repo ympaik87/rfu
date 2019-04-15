@@ -32,6 +32,7 @@ class SrtRfu32:
             'q7': 'Quasar 705',
         })
         self.row_name = list('ABCD')
+        self.col_name = [range(1, 5), range(5, 9)]
         self.cam_keys = ['main', 'sub']
         self.version = subprocess.check_output(
             ['git', 'rev-parse', '--short', 'HEAD']).decode('utf-8').strip()
@@ -162,7 +163,7 @@ class SrtRfu32:
                 continue
             top_left_pt = pts_li[ind]
             bottom_right_pt = pts_li[ind+6]
-            well = self.row_name[j] + str(i+1+idx*4)
+            well = self.row_name[j] + str(self.col_name[idx][i])
             grid[well] = [top_left_pt[1], top_left_pt[0],
                           bottom_right_pt[1], bottom_right_pt[0]]
         return grid
@@ -197,7 +198,8 @@ class SrtRfu32:
     def make_end_point_results(self, path):
         suffix = ' {} -  End Point Results.xlsx'.format(self.version)
         well_li = [
-            x+'0'+str(y+1) for x in list('ABCD') for y in range(8)][::-1]
+            x+'0'+str(y) for x in self.row_name for y in range(
+                self.col_name[0][0], self.col_name[1][-1])][::-1]
         with xlsxwriter.Workbook(
                 str(path/(self.exp_path.name+suffix))) as writer:
             ws = writer.add_worksheet()
@@ -239,12 +241,12 @@ class SrtRfu32:
         else:
             ind = 1
         col = int(well[-1])
-        if 0 <= col < 5:
+        if col in self.col_name[0]:
             cam = self.cam_keys[0]
-            col = list(range(1, 5))
+            col_li = self.col_name[0]
         else:
             cam = self.cam_keys[1]
-            col = list(range(5, 9))
+            col_li = self.col_name[1]
         im_path = self.exp_path/'{}/{}_{}_{}.jpg'.format(
             cam, int(cycle)-1, ind, dye)
         im_labeled, im_gray = self.label_image(im_path)
@@ -279,17 +281,14 @@ class SrtRfu32:
 
         table_cell = []
         for r in self.row_name:
-            _li = []
-            for c in col:
-                _li.append(region_sum_dict[r+str(c)])
-            table_cell.append(_li)
+            table_cell.append([region_sum_dict[r+str(c)] for c in col_li])
         ax[0, 2].axis('off')
         ax[0, 2].axis('auto')
         gs = ax[0, 2].get_gridspec()
         for a in ax[1:, 2]:
             a.remove()
         axbig = fig.add_subplot(gs[0:, 2])
-        table = axbig.table(cellText=table_cell, colLabels=col,
+        table = axbig.table(cellText=table_cell, colLabels=col_li,
                             rowLabels=self.row_name, loc='center')
         table.auto_set_column_width(list(range(4)))
         axbig.axis('off')
