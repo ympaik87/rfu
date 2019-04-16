@@ -45,7 +45,7 @@ It composed of 4 images, and one data table.
   * Processed Result: the result image with objects with well location
   * data table: table of RFU values, which are sum of RGB in corresponding with their well location
 
-**It will be more helpful to identify causes of issues if attaching these images when posting a new issue**
+**It will be more helpful to identify causes of issues if you are attaching these images as posting a new issue**
 
 ## Requirements
 ### Environment
