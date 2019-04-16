@@ -36,8 +36,8 @@ Quasar 705 | `q7`
 Well name | `A1`, `a1`, `a01`, `A01`
 Cycle number | Any number from 1 to total cycle. e.g. `2`
 
-This will produce the following image
-[!Result Image](doc/Result_a0519f2-sub_44_0_h.jpg)
+This will produce the following image.
+![Result Image](doc/Result_a0519f2-sub_44_0_h.jpg)
 It composed of 4 images, and one data table.
   * Original: the original image from camera
   * Gray: the image with sum of RGB
