@@ -1,7 +1,7 @@
 # PIX2RFU
 
 ## How to use
-### Make Datasheet in CFX96 format from the real-time PCR images.
+### 1. Make Datasheet in CFX96 format from the real-time PCR images.
 To create a datasheet from entire images
 ```
 $ activate rfu
@@ -16,7 +16,7 @@ $ python pix2rfu_32well.py "F:/path to experiment directory" -c <numbers of miss
 ```
 Note: Numbers of missing cols and rows must be typed without spaces
 
-### Get image recognition result from one image
+### 2. Get image processing result from an image
 
 To look into the image processing result
 ```
@@ -38,12 +38,12 @@ Cycle number | Any number from 1 to total cycle. e.g. `2`
 
 This will produce the following image.
 ![Result Image](doc/Result_a0519f2-sub_44_0_h.jpg)
-It composed of 4 images, and one data table.
+It is composed of 4 images, and one data table.
   * Original: the original image from camera with cropping area as a red rectangle
   * Gray: the 2D density plot from cropped image with sum of RGB
   * Labeled: the image of labeled objects after image processing the gray image
   * Processed Result: the result image with objects with well location
-  * Data table: table of RFU values, which are sum of RGB in corresponding to their well location
+  * Data table: table of RFU values, which are sum of RGB, corresponding to their well location
 
 **It will be more helpful to identify causes of issues if you are attaching these images as posting a new issue**
 
