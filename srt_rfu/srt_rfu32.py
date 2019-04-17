@@ -249,10 +249,6 @@ class SrtRfu32:
             col_li = self.col_name[1]
         im_path = self.exp_path/'{}/{}_{}_{}.jpg'.format(
             cam, int(cycle)-1, ind, dye)
-        im_labeled, im_gray = self.label_image(im_path)
-        image_label_overlay = label2rgb(
-            im_labeled, bg_label=0, colors=self.colors_li)
-        region_dic = self.get_region_dic(im_labeled, im_gray)
 
         outf_path = self.exp_path/'Result_{}-{}_{}_{}_{}.jpg'.format(
             self.version, cam, int(cycle)-1, ind, dye)
@@ -260,9 +256,39 @@ class SrtRfu32:
             outf_path = self.exp_path/('Result_{}-{}_{}_{}_{}'.format(
                 self.version, cam, int(cycle)-1, ind, dye) +
                 datetime.datetime.now().strftime('-%y%m%d_%H%M%S') + '.jpg')
+        title = '{} - (Version {})'.format(im_path.name, self.version)
+
+        self.plot_processing_result(im_path, cam, col_li, outf_path, title)
+
+    def get_single_result(self):
+        "save image processing result in image file (by cycle)"
+        self.grid = {}
+        self.grid['main'] = self.set_grid_single(self.exp_path)
+        cam = self.cam_keys[0]
+        col_li = self.col_name[0]
+        im_path = self.exp_path
+
+        outf_path = self.exp_path.parent.parent/'Single_Result_{}-{}'.format(
+                self.version, self.exp_path.stem)
+        if outf_path.exists():
+            outf_path = self.exp_path.parent.parent/(
+                'Single_Result_{}-{}'.format(
+                    self.version, self.exp_path.stem) +
+                datetime.datetime.now().strftime('-%y%m%d_%H%M%S') + '.jpg')
+
+        title = 'Single Picture Result of {} - (Version {})'.format(
+            im_path.name, self.version)
+
+        self.plot_processing_result(self.exp_path, cam, col_li, outf_path,
+                                    title)
+
+    def plot_processing_result(self, im_path, cam, col_li, outf_path, title):
+        im_labeled, im_gray = self.label_image(im_path)
+        image_label_overlay = label2rgb(
+            im_labeled, bg_label=0, colors=self.colors_li)
+        region_dic = self.get_region_dic(im_labeled, im_gray)
 
         fig, ax = plt.subplots(2, 3, figsize=(18, 12), constrained_layout=True)
-        fig.suptitle('{} - (Version {})'.format(im_path.name, self.version))
         ax[0, 0].imshow(self.open_im(im_path))
         rect = patches.Rectangle(
             (self.x_range.start, self.y_range.start),
@@ -293,4 +319,5 @@ class SrtRfu32:
         table.auto_set_column_width(list(range(4)))
         axbig.axis('off')
         axbig.axis('auto')
+        axbig.set_title(title)
         plt.savefig(str(outf_path))

@@ -14,7 +14,10 @@ def main(args):
     else:
         tc = 45
     _rfu = SrtRfu32(args.exp_path)
-    if args.is_onefile:
+    if args.is_onefile == 's':
+        print('is single file')
+        _rfu.get_single_result()
+    elif args.is_onefile == 'i':
         print('is onefile', args.temp, args.dye, args.cycle, args.well)
         _rfu.get_onef_result(
             args.temp, args.dye, args.cycle, args.well, tc=tc)
@@ -46,5 +49,6 @@ if __name__ == '__main__':
     well_li = [x+z+str(y+1) for x in list(
         'ABCDabcd') for y in range(8) for z in ['', '0']]
     parser_onef.add_argument('well', choices=well_li)
+    parser_single = subparsers.add_parser('s')
     args = parser.parse_args()
     main(args)
