@@ -24,13 +24,13 @@ class SrtRfu32:
         self.y_range = slice(600, 2200)
         self.x_range = slice(400, 2000)
         self.colors_li = [plt.cm.get_cmap('hsv', 30)(i) for i in range(30)]
-        self.ch_dict = OrderedDict({
-            'f': 'FAM',
-            'h': 'HEX',
-            'c': 'Cal Red 610',
-            'q6': 'Quasar 670',
-            'q7': 'Quasar 705',
-        })
+        self.ch_dict = OrderedDict([
+            ('f', 'FAM'),
+            ('h', 'HEX'),
+            ('c', 'Cal Red 610'),
+            ('q6', 'Quasar 670'),
+            ('q7', 'Quasar 705'),
+        ])
         self.row_name = list('ABCD')
         self.col_name = [range(1, 5), range(5, 9)]
         self.cam_keys = ['main', 'sub']
