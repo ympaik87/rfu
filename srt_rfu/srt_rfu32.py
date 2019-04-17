@@ -266,10 +266,9 @@ class SrtRfu32:
         self.grid['main'] = self.set_grid_single(self.exp_path)
         cam = self.cam_keys[0]
         col_li = self.col_name[0]
-        im_path = self.exp_path
 
         outf_path = self.exp_path.parent.parent/'Single_Result_{}-{}'.format(
-                self.version, self.exp_path.stem)
+                self.version, self.exp_path.name)
         if outf_path.exists():
             outf_path = self.exp_path.parent.parent/(
                 'Single_Result_{}-{}'.format(
@@ -277,7 +276,7 @@ class SrtRfu32:
                 datetime.datetime.now().strftime('-%y%m%d_%H%M%S') + '.jpg')
 
         title = 'Single Picture Result of {} - (Version {})'.format(
-            im_path.name, self.version)
+            self.exp_path.name, self.version)
 
         self.plot_processing_result(self.exp_path, cam, col_li, outf_path,
                                     title)
