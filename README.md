@@ -48,7 +48,7 @@ It is composed of 4 images, and one data table.
 **It will be more helpful to identify causes of issues if you are attaching these images as posting a new issue**
 
 ### 3. Get image processing result from an image of single camera test
-If you wish to take a look at the result from snapshot of single image test,
+If you wish to take a look at an image processing result with single image for the test purpose, try the following feature:
 ```
 $ python pix2rfu_32well.py "F:/path to an 16 well image" s
 ```
