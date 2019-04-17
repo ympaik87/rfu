@@ -52,7 +52,7 @@ If you wish to take a look at an image processing result with single image for t
 ```
 $ python pix2rfu_32well.py "F:/path to an 16 well image" s
 ```
-This will produce the similar image as the above except it set the grid (green dot areas) with the current images instead of reference image.
+This will produce the similar image processing result as the above except the part that it creates the well grid (green dot areas) from the current images instead of the reference image.
 
 ## Requirements
 ### Environment
