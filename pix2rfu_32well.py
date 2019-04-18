@@ -13,7 +13,7 @@ def main(args):
         tc = int(args.tc)
     else:
         tc = 45
-    _rfu = SrtRfu32(args.exp_path)
+    _rfu = SrtRfu32(args.exp_path, args.dye_exempt)
     if args.is_onefile == 's':
         print('is single file')
         _rfu.get_single_result()
@@ -36,8 +36,12 @@ if __name__ == '__main__':
         'exp_path', help='Path of the experiment directory, '
         'which contains main and sub folders for result images. '
         'If there are spaces within the path, add quotation marks.')
-    parser.add_argument('-c', '--exempt_col')
-    parser.add_argument('-r', '--exempt_row')
+    parser.add_argument('-c', '--exempt_col', nargs='+',
+                        choices=list(range(1, 9)))
+    parser.add_argument('-r', '--exempt_row', nargs='+', choices=list('ABCD'))
+    parser.add_argument('-d', '--dye_exempt', nargs='+',
+                        choices=['f', 'h', 'c', 'q6', 'q7'],
+                        help='notify missing dye')
     parser.add_argument('-t', '--tc', help='add total cycle. default is 45')
     subparsers = parser.add_subparsers(
         title='onefile', dest='is_onefile',

@@ -18,24 +18,33 @@ from srt_rfu.progress_bar import printProgressBar
 
 
 class SrtRfu32:
-    def __init__(self, exp_path):
+    def __init__(self, exp_path, dye_exempt=None):
         self.exp_path = pathlib.Path(exp_path)
         self.temp_li = ['Low Temp', 'High Temp']
         self.y_range = slice(600, 2200)
         self.x_range = slice(400, 2000)
         self.colors_li = [plt.cm.get_cmap('hsv', 30)(i) for i in range(30)]
-        self.ch_dict = OrderedDict([
+        self.row_name = list('ABCD')
+        self.col_name = [range(1, 5), range(5, 9)]
+        self.cam_keys = ['main', 'sub']
+        self.version = subprocess.check_output(
+            ['git', 'rev-parse', '--short', 'HEAD']).decode('utf-8').strip()
+        self.get_dye_dict(dye_exempt)
+
+    def get_dye_dict(self, dye_exempt):
+        dye_init = OrderedDict([
             ('f', 'FAM'),
             ('h', 'HEX'),
             ('c', 'Cal Red 610'),
             ('q6', 'Quasar 670'),
             ('q7', 'Quasar 705'),
         ])
-        self.row_name = list('ABCD')
-        self.col_name = [range(1, 5), range(5, 9)]
-        self.cam_keys = ['main', 'sub']
-        self.version = subprocess.check_output(
-            ['git', 'rev-parse', '--short', 'HEAD']).decode('utf-8').strip()
+        if dye_exempt:
+            for dye in dye_exempt:
+                del dye_init[dye]
+            self.ch_dict = dye_init
+        else:
+            self.ch_dict = dye_init
 
     def get_region_dic(self, im_labeled, im_gray):
         region_dic = {}

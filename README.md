@@ -10,11 +10,27 @@ $ python pix2rfu_32well.py "F:/path to experiment directory"
 ```
 It will create `DSP_datasheet` folder in the experiment path, and save datasheets according to the CFX96 format.
 
-if there are missing columns or rows
+if there are missing dye,
+```
+$ python pix2rfu_32well.py "F:/path to experiment directory" -d <missing dyes>
+# for example, if FAM and HEX channels are missing
+$ python pix2rfu_32well.py "F:/path to experiment directory" -d f h
+```
+
+The acceptable inputs are the following:
+
+Intended Value | Valid Input
+---------------|-------------
+FAM | `f`
+HEX | `h`
+Cal Red 610 | `c`
+Quasar 670 | `q6`
+Quasar 705 | `q7`
+
+(UPCOMING) if there are missing columns or rows
 ```
 $ python pix2rfu_32well.py "F:/path to experiment directory" -c <numbers of missing cols> -r <numbers of missing rows>
 ```
-Note: Numbers of missing cols and rows must be typed without spaces
 
 ### 2. Get image processing result from an image
 
@@ -50,7 +66,7 @@ It is composed of 4 images, and one data table.
 ### 3. Get image processing result from an image of single camera test
 If you wish to take a look at an image processing result with single image for the test purpose, try the following feature:
 ```
-$ python pix2rfu_32well.py "F:/path to an 16 well image" s
+$ python pix2rfu_32well.py "F:/path to a 16 well image" s
 ```
 This will produce the similar image processing result as the above except the part that it creates the well grid (green dot areas) from the current images instead of the reference image.
 
