@@ -27,7 +27,7 @@ Cal Red 610 | `c`
 Quasar 670 | `q6`
 Quasar 705 | `q7`
 
-(UPCOMING) if there are missing columns or rows
+**(UPCOMING)** if there are missing columns or rows
 ```
 $ python pix2rfu_32well.py "F:/path to experiment directory" -c <numbers of missing cols> -r <numbers of missing rows>
 ```
@@ -88,4 +88,15 @@ $ pip install -r requirements.txt
 ### To update the code
 ```
 $ git pull
+```
+
+If you have local changes, and it causes to abort `git pull`, one way to get around this is this:
+
+```
+# removing the local changes
+$ git stash
+# update
+$ git pull
+# put the local changes back on top of the recent update
+$ git stash pop
 ```
