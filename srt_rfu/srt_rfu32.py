@@ -1,4 +1,7 @@
 import subprocess
+import concurrent.futures
+from itertools import product
+from tqdm import tqdm
 import pathlib
 import xlsxwriter
 import datetime
@@ -119,11 +122,11 @@ class SrtRfu32:
 
     def open_im(self, im_path):
         "open images. Designed for adding image rotation for 96well"
-        return np.array(Image.open(im_path))
+        im = np.array(Image.open(im_path))
+        return im[self.y_range, self.x_range]
 
     def label_image(self, im_path):
-        im = self.open_im(im_path)
-        im_cropped = im[self.y_range, self.x_range]
+        im_cropped = self.open_im(im_path)
 
         im_gray = im_cropped.sum(axis=2)
         cleared = clear_border(im_gray)
@@ -137,10 +140,10 @@ class SrtRfu32:
     def set_grid(self, tc=45):
         "get grid by camera from the last cycle"
         self.grid = {'main': {}, 'sub': {}}
-        main_grid_im_path = self.exp_path/'{}/{}_0_f.jpg'.format(
-            self.cam_keys[0], tc-1)
-        sub_grid_im_path = self.exp_path/'{}/{}_0_f.jpg'.format(
-            self.cam_keys[1], tc-1)
+        main_grid_im_path = self.exp_path/'{}/{}_0_{}.jpg'.format(
+            self.cam_keys[0], tc-1, list(self.ch_dict.keys())[0])
+        sub_grid_im_path = self.exp_path/'{}/{}_0_{}.jpg'.format(
+            self.cam_keys[1], tc-1, list(self.ch_dict.keys())[0])
         for idx, im_path in enumerate([main_grid_im_path, sub_grid_im_path]):
             self.grid[self.cam_keys[idx]] = self.set_grid_single(im_path, idx)
 
@@ -177,12 +180,21 @@ class SrtRfu32:
                           bottom_right_pt[1], bottom_right_pt[0]]
         return grid
 
-    def make_rfu_table(self, tc=45):
+    def make_rfu_table(self, tc=45, progress_txt='RFU table progress'):
         "concatenate rfu by camera, dye, temp, cycle"
         print('Start creating RFU datatable')
         t = time.time()
         total_num = len(self.temp_li)*len(self.ch_dict)*tc*len(self.cam_keys)
         prog = 1
+
+        paramlist = list(product(range(len(self.temp_li)), self.ch_dict.keys(),
+                                 range(tc), self.cam_keys))
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            res_tup_li = list(
+                tqdm(executor.map(self.mp_rfu, paramlist),
+                     total=len(paramlist), desc=progress_txt))
+        res_dic = dict(res_tup_li)
+
         self.rfu_dict = {}
         for ind, temp in enumerate(self.temp_li):
             self.rfu_dict[temp] = {}
@@ -191,18 +203,23 @@ class SrtRfu32:
                 for cycle in range(tc):
                     _dic = {}
                     for cam in self.cam_keys:
-                        im_path = self.exp_path/'{}/{}_{}_{}.jpg'.format(
-                            cam, cycle, ind, dye_abb)
-                        im_labeled, im_gray = self.label_image(im_path)
-                        region_dic = self.get_region_dic(im_labeled, im_gray)
-                        _rfu = self.calculate_rfu(region_dic, cam)
+                        key = str((ind, dye_abb, cycle, cam))
+                        _rfu = res_dic[key]
                         _dic.update(_rfu)
                         prog += 1
                         printProgressBar(
-                            prog, total_num, 'RFU table progress:', 'Complete')
+                            prog, total_num, 'Data processing:', 'Complete')
                     _dic2[cycle+1] = _dic
                 self.rfu_dict[temp][dye] = pd.DataFrame(_dic2).T
         print('\nFinish creating RFU table in {} sec.'.format(time.time()-t))
+
+    def mp_rfu(self, paramlist):
+        im_path = self.exp_path/'{}/{}_{}_{}.jpg'.format(
+            paramlist[3], paramlist[2], paramlist[0], paramlist[1])
+        im_labeled, im_gray = self.label_image(im_path)
+        region_dic = self.get_region_dic(im_labeled, im_gray)
+        _rfu = self.calculate_rfu(region_dic, paramlist[3])
+        return str(paramlist), _rfu
 
     def make_end_point_results(self, path):
         suffix = ' {} -  End Point Results.xlsx'.format(self.version)
@@ -272,7 +289,7 @@ class SrtRfu32:
     def get_single_result(self):
         "save image processing result in image file (by cycle)"
         self.grid = {}
-        self.grid['main'] = self.set_grid_single(self.exp_path)
+        self.grid[self.cam_keys[0]] = self.set_grid_single(self.exp_path)
         cam = self.cam_keys[0]
         col_li = self.col_name[0]
 
@@ -297,7 +314,7 @@ class SrtRfu32:
         region_dic = self.get_region_dic(im_labeled, im_gray)
 
         fig, ax = plt.subplots(2, 3, figsize=(18, 12), constrained_layout=True)
-        ax[0, 0].imshow(self.open_im(im_path))
+        ax[0, 0].imshow(np.array(Image.open(im_path)))
         rect = patches.Rectangle(
             (self.x_range.start, self.y_range.start),
             self.x_range.stop-self.x_range.start,

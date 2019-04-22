@@ -1,6 +1,7 @@
 from srt_rfu.srt_rfu32 import SrtRfu32
 from PIL import Image
 import numpy as np
+from skimage.transform import rotate
 
 
 class SrtRfu32F(SrtRfu32):
@@ -10,6 +11,10 @@ class SrtRfu32F(SrtRfu32):
         self.col_name = [range(1, 5), range(5, 9)]
         self.cam_keys = ['front_left', 'front_right']
 
+    def open_im(self, im_path):
+        im = np.array(Image.open(im_path))
+        return rotate(im[self.y_range, self.x_range], 180)
+
 
 class SrtRfu32B(SrtRfu32):
     def __init__(self, exp_path):
@@ -17,9 +22,6 @@ class SrtRfu32B(SrtRfu32):
         self.row_name = list('EFGH')
         self.col_name = [range(1, 5), range(5, 9)]
         self.cam_keys = ['back_left', 'back_right']
-
-    def open_im(self, im_path):
-        return np.array(Image.open(im_path))
 
 
 class SrtRfu32S(SrtRfu32):
@@ -30,7 +32,8 @@ class SrtRfu32S(SrtRfu32):
         self.cam_keys = ['side_front', 'side_back']
 
     def open_im(self, im_path):
-        return np.array(Image.open(im_path))
+        im = np.array(Image.open(im_path))
+        return rotate(im[self.y_range, self.x_range], 270)
 
     def set_grid_single(self, im_path, idx=0):
         im_labeled, im_gray = self.label_image(im_path)
@@ -67,13 +70,18 @@ class SrtRfu32S(SrtRfu32):
 
 
 class SrtRfu96:
-    def __init__(self, exp_path):
+    def __init__(self, exp_path, dye_exempt=None):
         self.exp_path = exp_path
-        self.rfu_front = SrtRfu32F(self.exp_path)
-        self.rfu_back = SrtRfu32B(self.exp_path)
-        self.rfu_side = SrtRfu32S(self.exp_path)
+        self.rfu_front = SrtRfu32F(self.exp_path, dye_exempt)
+        self.rfu_back = SrtRfu32B(self.exp_path, dye_exempt)
+        self.rfu_side = SrtRfu32S(self.exp_path, dye_exempt)
 
     def concat_rfu_table(self):
-        front_dic = self.rfu_front.make_rfu_table()
-        back_dic = self.rfu_back.make_rfu_table()
-        side_dic = self.rfu_side.make_rfu_table()
+        front_dic = self.rfu_front.make_rfu_table(
+            progress_txt='front progress:')
+        back_dic = self.rfu_back.make_rfu_table(progress_txt='back progress:')
+        side_dic = self.rfu_side.make_rfu_table(progress_txt='side progress:')
+
+        for temp in self.rfu_back.temp_li:
+            for dye in self.rfu_back.ch_dict:
+                pass
