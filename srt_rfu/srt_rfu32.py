@@ -199,13 +199,12 @@ class SrtRfu32:
         for ind, temp in enumerate(self.temp_li):
             self.rfu_dict[temp] = {}
             for dye_abb, dye in self.ch_dict.items():
-                _dic2 = {}
+                _dic2 = OrderedDict()
                 for cycle in range(tc):
-                    _dic = {}
+                    _dic = OrderedDict()
                     for cam in self.cam_keys:
                         key = str((ind, dye_abb, cycle, cam))
-                        _rfu = res_dic[key]
-                        _dic.update(_rfu)
+                        _dic.update(res_dic[key])
                         prog += 1
                         printProgressBar(
                             prog, total_num, 'Data processing:', 'Complete')

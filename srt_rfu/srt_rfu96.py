@@ -78,9 +78,9 @@ class SrtRfu96:
 
     def concat_rfu_table(self):
         front_dic = self.rfu_front.make_rfu_table(
-            progress_txt='front progress:')
-        back_dic = self.rfu_back.make_rfu_table(progress_txt='back progress:')
-        side_dic = self.rfu_side.make_rfu_table(progress_txt='side progress:')
+            progress_txt='front progress')
+        back_dic = self.rfu_back.make_rfu_table(progress_txt='back progress')
+        side_dic = self.rfu_side.make_rfu_table(progress_txt='side progress')
 
         for temp in self.rfu_back.temp_li:
             for dye in self.rfu_back.ch_dict:
