@@ -49,6 +49,9 @@ if __name__ == '__main__':
     parser_onef = subparsers.add_parser('i')
     parser_onef.add_argument('temp', choices=['low', 'high'])
     parser_onef.add_argument('dye', choices=['f', 'h', 'c', 'q6', 'q7'])
+    parser_onef.add_argument('-d', '--dye_exempt', nargs='+',
+                             choices=['f', 'h', 'c', 'q6', 'q7'],
+                             help='notify missing dye')
     parser_onef.add_argument('cycle')
     well_li = [x+z+str(y+1) for x in list(
         'ABCDabcd') for y in range(8) for z in ['', '0']]
