@@ -175,10 +175,13 @@ class SrtRfu32:
                 continue
             top_left_pt = pts_li[ind]
             bottom_right_pt = pts_li[ind+6]
-            well = self.row_name[j] + str(self.col_name[idx][i])
+            well = self.get_well_name4grid(i, j, idx)
             grid[well] = [top_left_pt[1], top_left_pt[0],
                           bottom_right_pt[1], bottom_right_pt[0]]
         return grid
+
+    def get_well_name4grid(self, i, j, idx):
+        return self.row_name[j] + str(self.col_name[idx][i])
 
     def make_rfu_table(self, tc=45, progress_txt='RFU table progress'):
         "concatenate rfu by camera, dye, temp, cycle"
