@@ -9,8 +9,8 @@ from skimage.transform import rotate
 
 
 class SrtRfu32F(SrtRfu32):
-    def __init__(self, exp_path):
-        super().__init__(exp_path)
+    def __init__(self, exp_path, dye_exempt):
+        super().__init__(exp_path, dye_exempt)
         self.row_name = list('EFGH')
         self.col_name = [range(1, 5), range(5, 9)]
         self.cam_keys = ['front_left', 'front_right']
@@ -21,16 +21,16 @@ class SrtRfu32F(SrtRfu32):
 
 
 class SrtRfu32B(SrtRfu32):
-    def __init__(self, exp_path):
-        super().__init__(exp_path)
+    def __init__(self, exp_path, dye_exempt):
+        super().__init__(exp_path, dye_exempt)
         self.row_name = list('ABCD')
         self.col_name = [range(1, 5), range(5, 9)]
         self.cam_keys = ['back_left', 'back_right']
 
 
 class SrtRfu32S(SrtRfu32):
-    def __init__(self, exp_path):
-        super().__init__(exp_path)
+    def __init__(self, exp_path, dye_exempt):
+        super().__init__(exp_path, dye_exempt)
         self.row_name = [list('ABCD'), list('EFGH')]
         self.col_name = range(9, 13)
         self.cam_keys = ['side_front', 'side_back']
@@ -41,6 +41,25 @@ class SrtRfu32S(SrtRfu32):
 
     def get_well_name4grid(self, i, j, idx):
         return self.row_name[idx][j] + str(self.col_name[i])
+
+    def get_well_loc(self, well=None):
+        col_li = self.col_name
+        if well:
+            row = well[0]
+            if row.upper() in self.row_name[0]:
+                cam = self.cam_keys[0]
+                row_li = self.row_name[0]
+            else:
+                cam = self.cam_keys[1]
+                row_li = self.row_name[1]
+        else:
+            if self.exp_path.parent.name == self.cam_keys[0]:
+                cam = self.cam_keys[0]
+                row_li = self.row_name[0]
+            else:
+                cam = self.cam_keys[1]
+                row_li = self.row_name[1]
+        return cam, col_li, row_li
 
 
 class SrtRfu96:
@@ -55,21 +74,22 @@ class SrtRfu96:
                          *self.rfu_side.col_name]
 
     def concat_rfu_table(self, tc=45):
-        front_dic = self.rfu_front.make_rfu_table(
-            tc=tc, progress_txt='front progress')
-        back_dic = self.rfu_back.make_rfu_table(
-            tc=tc, progress_txt='back progress')
-        side_dic = self.rfu_side.make_rfu_table(
-            tc=tc, progress_txt='side progress')
+        self.rfu_front.set_grid(tc=tc)
+        self.rfu_front.make_rfu_table(tc=tc, progress_txt='front progress')
+        self.rfu_back.set_grid(tc=tc)
+        self.rfu_back.make_rfu_table(tc=tc, progress_txt='back progress')
+        self.rfu_side.set_grid(tc=tc)
+        self.rfu_side.make_rfu_table(tc=tc, progress_txt='side progress')
 
         self.rfu_dict = {}
         for temp in self.rfu_back.temp_li:
             self.rfu_dict[temp] = {}
             for dye in self.rfu_back.ch_dict.values():
-                df_f = front_dic[temp][dye]
-                df_b = back_dic[temp][dye]
-                df_s = side_dic[temp][dye]
-                self.rfu_dict[temp][dye] = df_f.append(df_b).join(df_s)
+                df_f = self.rfu_front.rfu_dict[temp][dye]
+                df_b = self.rfu_back.rfu_dict[temp][dye]
+                df_s = self.rfu_side.rfu_dict[temp][dye]
+                self.rfu_dict[temp][dye] = pd.concat([df_f, df_b, df_s],
+                                                     axis=1)
 
     def make_end_point_results(self, path):
         suffix = ' {} -  End Point Results.xlsx'.format(self.rfu_back.version)
@@ -108,7 +128,7 @@ class SrtRfu96:
             self.make_end_point_results(qs_path)
 
     def get_onef_result(self, tmp, dye, cycle, well, tc=45):
-        col = int(well[-1])
+        col = int(well[1:])
         row = well[0]
         if col in [*self.rfu_back.col_name[0], *self.rfu_back.col_name[1]]:
             if row in self.rfu_back.row_name:
@@ -119,4 +139,9 @@ class SrtRfu96:
             self.rfu_side.get_onef_result(tmp, dye, cycle, well, tc)
 
     def get_single_result(self):
-        self.rfu_back.get_single_result()
+        if self.exp_path.parent.name in self.rfu_front.cam_keys:
+            self.rfu_front.get_single_result()
+        elif self.exp_path.parent.name in self.rfu_back.cam_keys:
+            self.rfu_back.get_single_result()
+        else:
+            self.rfu_side.get_single_result()

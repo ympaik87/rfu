@@ -268,13 +268,7 @@ class SrtRfu32:
             ind = 0
         else:
             ind = 1
-        col = int(well[-1])
-        if col in self.col_name[0]:
-            cam = self.cam_keys[0]
-            col_li = self.col_name[0]
-        else:
-            cam = self.cam_keys[1]
-            col_li = self.col_name[1]
+        cam, col_li, row_li = self.get_well_loc(well)
         im_path = self.exp_path/'{}/{}_{}_{}.jpg'.format(
             cam, int(cycle)-1, ind, dye)
 
@@ -286,14 +280,33 @@ class SrtRfu32:
                 datetime.datetime.now().strftime('-%y%m%d_%H%M%S') + '.jpg')
         title = '{} - (Version {})'.format(im_path.name, self.version)
 
-        self.plot_processing_result(im_path, cam, col_li, outf_path, title)
+        self.plot_processing_result(im_path, cam, col_li, row_li, outf_path,
+                                    title)
+
+    def get_well_loc(self, well=None):
+        row_li = self.row_name
+        if well:
+            col = int(well[1:])
+            if col in self.col_name[0]:
+                cam = self.cam_keys[0]
+                col_li = self.col_name[0]
+            else:
+                cam = self.cam_keys[1]
+                col_li = self.col_name[1]
+        else:
+            if self.exp_path.parent.name == self.cam_keys[0]:
+                cam = self.cam_keys[0]
+                col_li = self.col_name[0]
+            else:
+                cam = self.cam_keys[1]
+                col_li = self.col_name[1]
+        return cam, col_li, row_li
 
     def get_single_result(self):
         "save image processing result in image file (by cycle)"
+        cam, col_li, row_li = self.get_well_loc()
         self.grid = {}
-        self.grid[self.cam_keys[0]] = self.set_grid_single(self.exp_path)
-        cam = self.cam_keys[0]
-        col_li = self.col_name[0]
+        self.grid[cam] = self.set_grid_single(self.exp_path)
 
         outf_path = self.exp_path.parent.parent/'Single_Result_{}-{}'.format(
                 self.version, self.exp_path.name)
@@ -306,10 +319,11 @@ class SrtRfu32:
         title = 'Single Picture Result of {} - (Version {})'.format(
             self.exp_path.name, self.version)
 
-        self.plot_processing_result(self.exp_path, cam, col_li, outf_path,
-                                    title)
+        self.plot_processing_result(self.exp_path, cam, col_li, row_li,
+                                    outf_path, title)
 
-    def plot_processing_result(self, im_path, cam, col_li, outf_path, title):
+    def plot_processing_result(self, im_path, cam, col_li, row_li, outf_path,
+                               title):
         im_labeled, im_gray = self.label_image(im_path)
         image_label_overlay = label2rgb(
             im_labeled, bg_label=0, colors=self.colors_li)
@@ -333,8 +347,9 @@ class SrtRfu32:
         ax[1, 1].set_title('Processed Result')
 
         table_cell = []
-        for r in self.row_name:
-            table_cell.append([region_sum_dict[r+str(c)] for c in col_li])
+        for r in row_li:
+            table_cell.append(
+                [round(region_sum_dict[r+str(c)], 2) for c in col_li])
         ax[0, 2].axis('off')
         ax[0, 2].axis('auto')
         gs = ax[0, 2].get_gridspec()
@@ -342,7 +357,7 @@ class SrtRfu32:
             a.remove()
         axbig = fig.add_subplot(gs[0:, 2])
         table = axbig.table(cellText=table_cell, colLabels=col_li,
-                            rowLabels=self.row_name, loc='center')
+                            rowLabels=row_li, loc='center')
         table.auto_set_column_width(list(range(4)))
         axbig.axis('off')
         axbig.axis('auto')
