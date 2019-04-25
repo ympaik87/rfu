@@ -6,9 +6,24 @@ To create a datasheet from entire images
 ```
 $ activate rfu
 $ cd rfu
+# for 32 well plate
 $ python pix2rfu_32well.py "F:/path to experiment directory"
+# for 96 well plate
+$ python pix2rfu_96well.py "F:/path to experiment directory"
 ```
 It will create `DSP_datasheet` folder in the experiment path, and save datasheets according to the CFX96 format.
+
+`pix2rfu_96well.py` is for images from 96 plate well, and names of folder should be the following:
+```
+exp_path
+   +-- front_left
+   +-- front_right
+   +-- back_left
+   +-- back_right
+   +-- side_back
+   +-- side_front
+```
+
 
 if there are missing dye,
 ```
