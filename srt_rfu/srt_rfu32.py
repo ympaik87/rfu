@@ -283,9 +283,12 @@ class SrtRfu32:
         self.plot_processing_result(im_path, cam, col_li, row_li, outf_path,
                                     title)
 
-    def get_well_loc(self, well=None):
+    def get_well_loc(self, well=None, is_single=False):
         row_li = self.row_name
-        if well:
+        if is_single:
+            cam = self.cam_keys[0]
+            col_li = self.col_name[0]
+        elif well:
             col = int(well[1:])
             if col in self.col_name[0]:
                 cam = self.cam_keys[0]
@@ -304,7 +307,7 @@ class SrtRfu32:
 
     def get_single_result(self):
         "save image processing result in image file (by cycle)"
-        cam, col_li, row_li = self.get_well_loc()
+        cam, col_li, row_li = self.get_well_loc(is_single=True)
         self.grid = {}
         self.grid[cam] = self.set_grid_single(self.exp_path)
 
@@ -344,12 +347,18 @@ class SrtRfu32:
         ax[1, 0].set_title('Labeled')
         ax[1, 1].imshow(image_label_overlay)
         region_sum_dict = self.calculate_rfu(region_dic, cam, ax[1, 1])
+        print(region_sum_dict)
         ax[1, 1].set_title('Processed Result')
 
         table_cell = []
         for r in row_li:
-            table_cell.append(
-                [round(region_sum_dict[r+str(c)], 2) for c in col_li])
+            _li = []
+            for c in col_li:
+                try:
+                    _li.append(round(region_sum_dict[r+str(c)], 2))
+                except KeyError:
+                    _li.append('')
+            table_cell.append(_li)
         ax[0, 2].axis('off')
         ax[0, 2].axis('auto')
         gs = ax[0, 2].get_gridspec()

@@ -13,6 +13,7 @@ $ python pix2rfu_96well.py "F:/path to experiment directory"
 ```
 It will create `DSP_datasheet` folder in the experiment path, and save datasheets according to the CFX96 format.
 
+#### For 96 well
 `pix2rfu_96well.py` is for images from 96 plate well, and names of folder should be the following:
 ```
 exp_path
@@ -23,7 +24,6 @@ exp_path
    +-- side_back
    +-- side_front
 ```
-
 
 if there are missing dye,
 ```
