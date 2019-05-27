@@ -347,7 +347,6 @@ class SrtRfu32:
         ax[1, 0].set_title('Labeled')
         ax[1, 1].imshow(image_label_overlay)
         region_sum_dict = self.calculate_rfu(region_dic, cam, ax[1, 1])
-        print(region_sum_dict)
         ax[1, 1].set_title('Processed Result')
 
         table_cell = []
