@@ -85,6 +85,39 @@ $ python pix2rfu_32well.py "F:/path to a 16 well image" s
 ```
 This will produce the similar image processing result as the above except the part that it creates the well grid (green dot areas) from the current images instead of the reference image.
 
+### 4. Get RFU values from test run
+If you have run a test with a few cycles of multiple conditions, this program also can generate excel files of their RFU table for each condition.
+
+```
+$ python exp2rfu.py "F:/path to a 16 well image"
+```
+
+In order to run this, first, you have to organize image files as following:
+
+```
+exp_path
+   +-- <condition1 with any name>
+      +-- <Dye>_<Cycle>_<any suffix>.jpg
+      +-- F_1_blahblah.jpg for example
+   +-- <condition2 with any name>
+   +-- <condition3 with any name>
+   +-- ...
+```
+
+where `dye` is one of `['f', 'h', 'c', 'q6', 'q7']`, and cycle is any integer for name of row in RFU table.
+
+Intended Value | Valid Input
+---------------|-------------
+FAM | `f`
+HEX | `h`
+Cal Red 610 | `c`
+Quasar 670 | `q6`
+Quasar 705 | `q7`
+
+Keep in mind that dye and cycle should be separated with underscore, `_` in order, in file names.
+
+This function will produce excel files in `DSP_datasheet_<datetime>` folder with corresponding to names of their experiment conditions.
+
 ## Requirements
 ### Environment
 - Python 3.5.3
@@ -105,7 +138,7 @@ $ pip install -r requirements.txt
 $ git pull
 ```
 
-If you have local changes, and it causes to abort `git pull`, one way to get around this is this:
+If you have local changes, and it causes to abort `git pull`, one way to get around this is the following:
 
 ```
 # removing the local changes
