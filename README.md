@@ -114,7 +114,7 @@ Cal Red 610 | `c`
 Quasar 670 | `q6`
 Quasar 705 | `q7`
 
-Keep in mind that dye and cycle should be separated with underscore, `_` in order, in file names.
+Keep in mind that dye and cycle should be separated by underscore, `_`, in order.
 
 This function will produce excel files in `DSP_datasheet_<datetime>` folder with corresponding to names of their experiment conditions.
 

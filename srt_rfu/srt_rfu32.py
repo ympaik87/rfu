@@ -24,8 +24,8 @@ class SrtRfu32:
     def __init__(self, exp_path, dye_exempt=None):
         self.exp_path = pathlib.Path(exp_path)
         self.temp_li = ['Low Temp', 'High Temp']
-        self.y_range = slice(600, 2200)
-        self.x_range = slice(400, 2000)
+        self.y_range = slice(800, 2300)
+        self.x_range = slice(500, 2100)
         self.colors_li = [plt.cm.get_cmap('hsv', 30)(i) for i in range(30)]
         self.row_name = list('ABCD')
         self.col_name = [range(1, 5), range(5, 9)]
@@ -133,8 +133,8 @@ class SrtRfu32:
         thresh = threshold_mean(cleared)
         threshed_im = im_gray > thresh
 
-        bw = closing(threshed_im, disk(3))
-        bw2 = opening(bw, disk(3))
+        bw = opening(threshed_im, disk(11))
+        bw2 = closing(bw, disk(3))
         return label(bw2), im_gray
 
     def set_grid(self, tc=45):
