@@ -42,8 +42,8 @@ class ExpRfu(SrtRfu32):
         self.grid[self.cam] = self.set_grid_single(im_path)
 
         im_labeled, im_gray = self.label_image(im_path)
-        region_dic = self.get_region_dic(im_labeled, im_gray)
-        return im_rel_path, self.calculate_rfu(region_dic, self.cam)
+        region_li = self.get_region_li(im_labeled, im_gray)
+        return im_rel_path, self.calculate_rfu(region_li, self.cam)
 
     def make_end_point_results(self, folder_name):
         fname = '{}_{} -  End Point Results.xlsx'.format(

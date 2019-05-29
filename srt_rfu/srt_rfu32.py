@@ -49,11 +49,13 @@ class SrtRfu32:
         else:
             self.ch_dict = dye_init
 
-    def get_region_dic(self, im_labeled, im_gray):
-        region_dic = {}
+    def get_region_li(self, im_labeled, im_gray):
+        region_li = []
         for region in regionprops(im_labeled, intensity_image=im_gray):
-            region_dic[region.area] = region
-        return region_dic
+            region_li.append((region.area, region))
+        sorted_region_li = sorted(
+            region_li, key=lambda tup: tup[0], reverse=True)
+        return [region for area, region in sorted_region_li]
 
     def get_grid_loc(self, x, y, cam):
         well_location_dict = self.grid[cam]
@@ -80,16 +82,14 @@ class SrtRfu32:
             ax.scatter(pts[1], pts[0], c='g')
             ax.scatter(pts[3], pts[2], c='g')
 
-    def calculate_rfu(self, region_dic, cam, ax=None):
+    def calculate_rfu(self, region_li, cam, ax=None):
         "calculate RFU by image"
         region_sum_dict = {}
         for key in self.grid[cam].keys():
             region_sum_dict[key] = 0
-        areas_li = sorted(list(region_dic.keys()), reverse=True)
         center_at_cycle = {}
         circle_li = []
-        for area in areas_li:
-            region_obj = region_dic[area]
+        for region_obj in region_li:
             y, x = region_obj.centroid
             grid = self.get_grid_loc(x, y, cam)
             if grid is None:
@@ -149,14 +149,12 @@ class SrtRfu32:
 
     def set_grid_single(self, im_path, idx=0):
         im_labeled, im_gray = self.label_image(im_path)
-        region_dic = self.get_region_dic(im_labeled, im_gray)
-        areas_li = sorted(list(region_dic.keys()), reverse=True)[:16]
+        region_li = self.get_region_li(im_labeled, im_gray)
         bbox_key_li = ['minr', 'minc', 'maxr', 'maxc']
         bbox_dic = {}
         for key in bbox_key_li:
             bbox_dic[key] = []
-        for key2 in areas_li:
-            region = region_dic[key2]
+        for region in region_li:
             bbox_li = region.bbox
             for i, k in enumerate(bbox_key_li):
                 bbox_dic[k] += [bbox_li[i]]
@@ -219,8 +217,8 @@ class SrtRfu32:
         im_path = self.exp_path/'{}/{}_{}_{}.jpg'.format(
             paramlist[3], paramlist[2], paramlist[0], paramlist[1])
         im_labeled, im_gray = self.label_image(im_path)
-        region_dic = self.get_region_dic(im_labeled, im_gray)
-        _rfu = self.calculate_rfu(region_dic, paramlist[3])
+        region_li = self.get_region_li(im_labeled, im_gray)
+        _rfu = self.calculate_rfu(region_li, paramlist[3])
         return str(paramlist), _rfu
 
     def make_end_point_results(self, path):
@@ -330,7 +328,7 @@ class SrtRfu32:
         im_labeled, im_gray = self.label_image(im_path)
         image_label_overlay = label2rgb(
             im_labeled, bg_label=0, colors=self.colors_li)
-        region_dic = self.get_region_dic(im_labeled, im_gray)
+        region_li = self.get_region_li(im_labeled, im_gray)
 
         fig, ax = plt.subplots(2, 3, figsize=(18, 12), constrained_layout=True)
         ax[0, 0].imshow(np.array(Image.open(im_path)))
@@ -346,7 +344,7 @@ class SrtRfu32:
         ax[1, 0].imshow(image_label_overlay)
         ax[1, 0].set_title('Labeled')
         ax[1, 1].imshow(image_label_overlay)
-        region_sum_dict = self.calculate_rfu(region_dic, cam, ax[1, 1])
+        region_sum_dict = self.calculate_rfu(region_li, cam, ax[1, 1])
         ax[1, 1].set_title('Processed Result')
 
         table_cell = []
