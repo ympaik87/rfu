@@ -14,10 +14,11 @@ class ExpRfu2(ExpRfu):
         self.res_dic = OrderedDict()
         self.res_dic[self.exp_path.name] = {}
         for i, folder in enumerate(self.folder_li):
-            ch = self.ch_dict[folder.name]
-            for im_f in folder.glob('*.jpg'):
-                im_path_li.append(im_f.relative_to(self.exp_path))
-                self.res_dic[self.exp_path.name][ch] = []
+            if folder.name in self.ch_dict.keys():
+                ch = self.ch_dict[folder.name]
+                for im_f in folder.glob('*.jpg'):
+                    im_path_li.append(im_f.relative_to(self.exp_path))
+                    self.res_dic[self.exp_path.name][ch] = []
 
         with concurrent.futures.ProcessPoolExecutor() as executor:
             res_tup_li = list(
