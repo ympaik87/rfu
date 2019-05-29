@@ -24,7 +24,7 @@ class SrtRfu32:
     def __init__(self, exp_path, dye_exempt=None):
         self.exp_path = pathlib.Path(exp_path)
         self.temp_li = ['Low Temp', 'High Temp']
-        self.y_range = slice(800, 2300)
+        self.y_range = slice(300, 1800)
         self.x_range = slice(500, 2100)
         self.colors_li = [plt.cm.get_cmap('hsv', 30)(i) for i in range(30)]
         self.row_name = list('ABCD')
