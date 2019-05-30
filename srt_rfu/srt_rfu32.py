@@ -370,8 +370,7 @@ class SrtRfu32:
         boundary = [0, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5, 2]
         norm = matplotlib.colors.BoundaryNorm(boundary, 7)
         im, cbar = heatmap(data_rt_mean, row_li, col_li, ax=ax[1, 2],
-                           cmap=plt.get_cmap('bwr', 7), norm=norm,
-                           cbarlabel='RFU/mean')
+                           cmap=plt.get_cmap('coolwarm', 7), norm=norm,
+                           cbarlabel='RFU divided by mean')
         annotate_heatmap(im, textcolors=['black', 'black'])
-        ax[1, 2].set_title('RFU divided by mean')
         plt.savefig(str(outf_path))
