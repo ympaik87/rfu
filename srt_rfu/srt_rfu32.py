@@ -15,9 +15,11 @@ from skimage.color import label2rgb
 import numpy as np
 import pandas as pd
 from PIL import Image
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import patches
 from srt_rfu.progress_bar import printProgressBar
+from srt_rfu.heat_map import heatmap, annotate_heatmap
 
 
 class SrtRfu32:
@@ -356,16 +358,20 @@ class SrtRfu32:
                 except KeyError:
                     _li.append('')
             table_cell.append(_li)
+        table = ax[0, 2].table(cellText=table_cell, colLabels=col_li,
+                               rowLabels=row_li, loc='center')
+        table.auto_set_column_width(list(range(4)))
         ax[0, 2].axis('off')
         ax[0, 2].axis('auto')
-        gs = ax[0, 2].get_gridspec()
-        for a in ax[1:, 2]:
-            a.remove()
-        axbig = fig.add_subplot(gs[0:, 2])
-        table = axbig.table(cellText=table_cell, colLabels=col_li,
-                            rowLabels=row_li, loc='center')
-        table.auto_set_column_width(list(range(4)))
-        axbig.axis('off')
-        axbig.axis('auto')
-        axbig.set_title(title)
+        ax[0, 2].set_title(title)
+
+        cell_np = np.array(table_cell)
+        data_rt_mean = np.true_divide(cell_np, np.mean(cell_np))
+        boundary = [0, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5, 2]
+        norm = matplotlib.colors.BoundaryNorm(boundary, 7)
+        im, cbar = heatmap(data_rt_mean, row_li, col_li, ax=ax[1, 2],
+                           cmap=plt.get_cmap('bwr', 7), norm=norm,
+                           cbarlabel='RFU/mean')
+        annotate_heatmap(im, textcolors=['black', 'black'])
+        ax[1, 2].set_title('RFU divided by mean')
         plt.savefig(str(outf_path))
