@@ -85,14 +85,9 @@ class ExpRfu(SrtRfu32):
         im_cropped = self.open_im(im_path)
 
         im_gray = im_cropped.sum(axis=2)
-        cleared = clear_border(im_gray)
-        # thresh = threshold_mean(cleared)
         thresh = 0.1
-        threshed_im = erosion(cleared > thresh, disk(5))
-
-        bw = opening(threshed_im, disk(11))
-        bw2 = closing(bw, disk(3))
-        return label(bw2), im_gray
+        threshed_im = im_gray > thresh
+        return label(threshed_im), im_gray
     
     def set_grid_single(self, im_path, idx=0):
         well_box = [50, 200, 1300, 1500]
