@@ -30,12 +30,18 @@ class ExpRfu2(ExpRfu):
             self.res_dic[self.exp_path.name][self.ch_dict[
                 rel_path.parent.name]].append(pd.Series(dic, name=fname))
 
+    def get_stats(self):
+        print('Under construction')
+
 
 def main(args):
     print(args)
     print('path', args.exp_path)
     _rfu = ExpRfu2(args.exp_path)
-    _rfu.get_datasheet()
+    if args.stats:
+        _rfu.get_stats(args.stats)
+    else:
+        _rfu.get_datasheet()
 
 
 if __name__ == '__main__':
@@ -47,6 +53,8 @@ if __name__ == '__main__':
     version = subprocess.check_output(
         ['git', 'rev-parse', '--short', 'HEAD']).decode('utf-8').strip()
     parser.add_argument('-v', '--version', action='version', version=version)
+    parser.add_argument('-s', '--stats',
+                        choices=['mean', 'mean_ratio', 'std', 'cv'])
     parser.add_argument(
         'exp_path', help='Path of the experiment directory, '
         'which contains main and sub folders for result images. '

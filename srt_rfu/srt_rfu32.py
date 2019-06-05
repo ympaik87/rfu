@@ -133,7 +133,7 @@ class SrtRfu32:
         im_gray = im_cropped.sum(axis=2)
         cleared = clear_border(im_gray)
         thresh = threshold_mean(cleared)
-        threshed_im = im_gray > thresh
+        threshed_im = cleared > thresh
 
         bw = opening(threshed_im, disk(11))
         bw2 = closing(bw, disk(3))
