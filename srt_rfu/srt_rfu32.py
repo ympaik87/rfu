@@ -28,6 +28,8 @@ class SrtRfu32:
         self.temp_li = ['Low Temp', 'High Temp']
         self.y_range = slice(300, 1800)
         self.x_range = slice(500, 2100)
+        self.well_area_max = (self.y_range.stop - self.y_range.start) * (
+            self.x_range.stop - self.x_range.start) * 0.2
         self.colors_li = [plt.cm.get_cmap('hsv', 30)(i) for i in range(30)]
         self.row_name = list('ABCD')
         self.col_name = [range(1, 5), range(5, 9)]
@@ -92,6 +94,8 @@ class SrtRfu32:
         center_at_cycle = {}
         circle_li = []
         for region_obj in region_li:
+            if region_obj.area > self.well_area_max:
+                continue
             y, x = region_obj.centroid
             grid = self.get_grid_loc(x, y, cam)
             if grid is None:

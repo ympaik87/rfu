@@ -36,6 +36,7 @@ class ExpRfu(SrtRfu32):
                     im_path_li.append(im_f.relative_to(self.exp_path))
                 for ch in self.ch_dict.values():
                     self.res_dic[folder.name][ch] = []
+        import pdb; pdb.set_trace()
         with concurrent.futures.ProcessPoolExecutor() as executor:
             res_tup_li = list(
                 tqdm(executor.map(self.mp_rfu, im_path_li),
@@ -115,9 +116,9 @@ class ExpRfu(SrtRfu32):
         "calculate RFU by image"
         region_sum_dict = {}
         for key, grid_coord in self.grid[cam].items():
-            x_range = slice(int(grid_coord[1]), int(grid_coord[3]))
-            y_range = slice(int(grid_coord[0]), int(grid_coord[2]))
-            region_sum_dict[key] = im_in[y_range, x_range].sum()
+            x_range = slice(grid_coord[1], grid_coord[3])
+            y_range = slice(grid_coord[0], grid_coord[2])
+            region_sum_dict[key] = im_in[x_range, y_range].sum()
         return region_sum_dict
     
     def get_single_result(self):
