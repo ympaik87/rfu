@@ -13,7 +13,7 @@ class ExpRfu2(ExpRfu):
         im_path_li = []
         self.res_dic = OrderedDict()
         self.res_dic[self.exp_path.name] = {}
-        for i, folder in enumerate(self.folder_li):
+        for folder in self.folder_li:
             if folder.name in self.ch_dict.keys():
                 ch = self.ch_dict[folder.name]
                 for im_f in folder.glob('*.jpg'):
@@ -30,7 +30,7 @@ class ExpRfu2(ExpRfu):
             self.res_dic[self.exp_path.name][self.ch_dict[
                 rel_path.parent.name]].append(pd.Series(dic, name=fname))
 
-    def get_stats(self):
+    def get_stats(self, stat_arg):
         print('Under construction')
 
 
