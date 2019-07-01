@@ -378,3 +378,4 @@ class SrtRfu32:
                            cbarlabel='RFU divided by mean')
         annotate_heatmap(im, textcolors=['black', 'black'])
         plt.savefig(str(outf_path))
+        print(region_sum_dict)
