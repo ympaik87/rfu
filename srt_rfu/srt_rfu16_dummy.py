@@ -69,12 +69,12 @@ class SrtRfu16:
         _, step, cycle, cam_ind, ch = im_name.split('_')
         if step in self.step_li:
             ind = self.step_li.index(step)
-            with open(self.dummy_data_path[ind], 'r') as f:
+            with open(str(self.dummy_data_path[ind]), 'r') as f:
                 dummy_data = json.load(f)
-            for well in self.dummy_well_name[cam_ind]:
+            for well in self.dummy_well_name[int(cam_ind)]:
                 if well in dummy_data[self.ch_dict[ch]].keys():
                     region_sum_dict[well] = dummy_data[self.ch_dict[ch]][well][
-                        int(cycle)]
+                        cycle]
                 else:
                     region_sum_dict[well] = np.nan
         else:
@@ -130,8 +130,8 @@ class SrtRfu16:
 
     def mp_rfu(self, im_path):
         _path = pathlib.Path(im_path)
-        self.set_grid_json(_path)
-        im = self.open_im(_path)
+        # self.set_grid_json(_path)
+        # im = self.open_im(_path)
         _rfu = self.calculate_rfu(_path)
         return _rfu
 
