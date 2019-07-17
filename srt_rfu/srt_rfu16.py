@@ -36,27 +36,35 @@ class SrtRfu16:
             self.grid_cent[well] = (cent_y, cent_x)
 
     def create_circular_mask(self, h, w, center, radius):
+        tt = time.process_time()
         Y, X = np.ogrid[:h, :w]
+        print('ogrid: ', time.process_time()-tt)
+        tt = time.process_time()
         dist_from_center = np.sqrt((X - center[0])**2 + (Y - center[1])**2)
+        print('dist_from_center: ', time.process_time()-tt)
 
+        tt = time.process_time()
         mask = dist_from_center <= radius
+        print('mask: ', time.process_time()-tt)
         return mask
 
-    def calculate_rfu(self, im):
+    def calculate_rfu(self, im, radius=100):
         "calculate RFU by image"
         im_sum = im.sum(axis=2)
-        h, w, _ = im.shape
 
         region_sum_dict = {}
         for well, cent in self.grid_cent.items():
-            tt = time.process_time()
-            mask = self.create_circular_mask(h, w, cent, 100)
-            print('create_circular_mask time: ', time.process_time()-tt)
-            tt = time.process_time()
-            masked_img = im_sum.copy()
+            y_start = int(cent[1]-radius)
+            y_end = int(cent[1]+radius)
+            x_start = int(cent[0]-radius)
+            x_end = int(cent[0]+radius)
+            im_cropped = im_sum[y_start:y_end, x_start:x_end]
+            h, w = im_cropped.shape
+
+            mask = self.create_circular_mask(h, w, (radius, radius), radius)
+            masked_img = im_cropped.copy()
             masked_img[~mask] = 0
             region_sum_dict[well] = masked_img.sum()
-            print('after create_circular_mask time: ', time.process_time()-tt)
 
         return region_sum_dict
 
@@ -108,15 +116,9 @@ class SrtRfu16:
 
     def mp_rfu(self, im_path):
         _path = pathlib.Path(im_path)
-        tt = time.process_time()
         self.set_grid_json(_path)
-        print('set_grid_json time: ', time.process_time()-tt)
-        tt = time.process_time()
         im = self.open_im(_path)
-        print('open_im time: ', time.process_time()-tt)
-        tt = time.process_time()
         _rfu = self.calculate_rfu(im)
-        print('calculate_rfu time: ', time.process_time()-tt)
         return _rfu
 
     def set_grid_json(self, im_path):

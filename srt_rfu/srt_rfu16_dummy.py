@@ -135,8 +135,7 @@ class SrtRfu16:
         _rfu = self.calculate_rfu(_path)
         if is_outf:
             _rfu_json = json.dumps(_rfu)
-            with open("{}/{}.json".format(_path.parent, _path.stem),
-                      "w") as f:
+            with open("{}/{}.json".format(_path.parent, _path.stem), "w") as f:
                 json.dump(_rfu_json, f)
         return _rfu
 
