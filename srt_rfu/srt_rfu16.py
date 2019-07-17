@@ -114,11 +114,15 @@ class SrtRfu16:
     def get_well_name4grid(self, i, j):
         return self.row_name[j] + str(self.col_name[i])
 
-    def mp_rfu(self, im_path):
+    def mp_rfu(self, im_path, is_outf=True):
         _path = pathlib.Path(im_path)
         self.set_grid_json(_path)
         im = self.open_im(_path)
         _rfu = self.calculate_rfu(im)
+        if is_outf:
+            _rfu_json = json.dumps(_rfu)
+            with open("{}/{}.json".format(_path.parent, _path.stem), "w") as f:
+                json.dump(_rfu_json, f)
         return _rfu
 
     def set_grid_json(self, im_path):
