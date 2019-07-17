@@ -8,6 +8,7 @@ import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
 import json
+import time
 
 
 class SrtRfu16:
@@ -48,10 +49,14 @@ class SrtRfu16:
 
         region_sum_dict = {}
         for well, cent in self.grid_cent.items():
+            tt = time.process_time()
             mask = self.create_circular_mask(h, w, cent, 100)
+            print('create_circular_mask time: ', time.process_time()-tt)
+            tt = time.process_time()
             masked_img = im_sum.copy()
             masked_img[~mask] = 0
             region_sum_dict[well] = masked_img.sum()
+            print('after create_circular_mask time: ', time.process_time()-tt)
 
         return region_sum_dict
 
@@ -69,7 +74,7 @@ class SrtRfu16:
         threshed_im = cleared > thresh
         return label(threshed_im), im_gray
 
-    def set_grid(self, ref_path, is_outf=True):
+    def set_grid(self, ref_path, is_outf=False):
         "get grid by camera from the last cycle"
         im_path = pathlib.Path(ref_path)
         self.grid = self.set_grid_single(im_path)
@@ -103,9 +108,15 @@ class SrtRfu16:
 
     def mp_rfu(self, im_path):
         _path = pathlib.Path(im_path)
+        tt = time.process_time()
         self.set_grid_json(_path)
+        print('set_grid_json time: ', time.process_time()-tt)
+        tt = time.process_time()
         im = self.open_im(_path)
+        print('open_im time: ', time.process_time()-tt)
+        tt = time.process_time()
         _rfu = self.calculate_rfu(im)
+        print('calculate_rfu time: ', time.process_time()-tt)
         return _rfu
 
     def set_grid_json(self, im_path):
