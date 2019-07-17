@@ -64,7 +64,7 @@ class SrtRfu16:
             mask = self.create_circular_mask(h, w, (radius, radius), radius)
             masked_img = im_cropped.copy()
             masked_img[~mask] = 0
-            region_sum_dict[well] = masked_img.sum()
+            region_sum_dict[well] = int(masked_img.sum())
 
         return region_sum_dict
 
@@ -120,9 +120,8 @@ class SrtRfu16:
         im = self.open_im(_path)
         _rfu = self.calculate_rfu(im)
         if is_outf:
-            _rfu_json = json.dumps(_rfu)
             with open("{}/{}.json".format(_path.parent, _path.stem), "w") as f:
-                json.dump(_rfu_json, f)
+                json.dump(_rfu, f)
         return _rfu
 
     def set_grid_json(self, im_path):
