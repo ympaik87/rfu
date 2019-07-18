@@ -102,9 +102,8 @@ class SrtRfu16:
         self.grid = self.set_grid_single(im_path)
         self.get_grid_center()
         if is_outf:
-            grid_json = json.dumps(self.grid_cent)
             with open("{}/grid.json".format(im_path.parent), "w") as f:
-                json.dump(grid_json, f)
+                json.dump(self.grid_cent, f)
 
     def set_grid_single(self, im_f):
         im_labeled, im_gray = self.label_image(im_f)
