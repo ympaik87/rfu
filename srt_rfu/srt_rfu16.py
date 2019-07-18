@@ -36,16 +36,10 @@ class SrtRfu16:
             self.grid_cent[well] = (cent_y, cent_x)
 
     def create_circular_mask(self, h, w, center, radius):
-        tt = time.process_time()
         Y, X = np.ogrid[:h, :w]
-        print('ogrid: ', time.process_time()-tt)
-        tt = time.process_time()
         dist_from_center = np.sqrt((X - center[0])**2 + (Y - center[1])**2)
-        print('dist_from_center: ', time.process_time()-tt)
 
-        tt = time.process_time()
         mask = dist_from_center <= radius
-        print('mask: ', time.process_time()-tt)
         return mask
 
     def calculate_rfu(self, im, radius=100):

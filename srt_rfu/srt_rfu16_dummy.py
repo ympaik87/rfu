@@ -134,9 +134,8 @@ class SrtRfu16:
         # im = self.open_im(_path)
         _rfu = self.calculate_rfu(_path)
         if is_outf:
-            _rfu_json = json.dumps(_rfu)
             with open("{}/{}.json".format(_path.parent, _path.stem), "w") as f:
-                json.dump(_rfu_json, f)
+                json.dump(_rfu, f)
         return _rfu
 
     def set_grid_json(self, im_path):
