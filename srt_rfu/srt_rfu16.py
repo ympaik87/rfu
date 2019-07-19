@@ -17,6 +17,7 @@ class SrtRfu16:
         self.grid_cent = None
         self.row_name = list('ABCD')
         self.col_name = range(1, 5)
+        self.radius = 100
         self.version = subprocess.check_output(
             ['git', 'rev-parse', '--short', 'HEAD']).decode('utf-8').strip()
 
@@ -35,27 +36,27 @@ class SrtRfu16:
             cent_x = int((pts[2] + pts[0])/2)
             self.grid_cent[well] = (cent_y, cent_x)
 
-    def create_circular_mask(self, h, w, center, radius):
-        Y, X = np.ogrid[:h, :w]
-        dist_from_center = np.sqrt((X - center[0])**2 + (Y - center[1])**2)
+    def create_circular_mask(self, h, w):
+        y, x = np.ogrid[:h, :w]
+        dist_from_center = np.sqrt((x - self.radius)**2 + (y - self.radius)**2)
 
-        mask = dist_from_center <= radius
+        mask = dist_from_center <= self.radius
         return mask
 
-    def calculate_rfu(self, im, radius=100):
+    def calculate_rfu(self, im):
         "calculate RFU by image"
         im_sum = im.sum(axis=2)
 
         region_sum_dict = {}
         for well, cent in self.grid_cent.items():
-            y_start = int(cent[1]-radius)
-            y_end = int(cent[1]+radius)
-            x_start = int(cent[0]-radius)
-            x_end = int(cent[0]+radius)
+            y_start = int(cent[1]-self.radius)
+            y_end = int(cent[1]+self.radius)
+            x_start = int(cent[0]-self.radius)
+            x_end = int(cent[0]+self.radius)
             im_cropped = im_sum[y_start:y_end, x_start:x_end]
             h, w = im_cropped.shape
 
-            mask = self.create_circular_mask(h, w, (radius, radius), radius)
+            mask = self.create_circular_mask(h, w)
             masked_img = im_cropped.copy()
             masked_img[~mask] = 0
             region_sum_dict[well] = int(masked_img.sum())
