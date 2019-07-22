@@ -110,7 +110,8 @@ class SrtRfu16:
 
     def mp_rfu(self, im_path, is_outf=True):
         _path = pathlib.Path(im_path)
-        self.set_grid_json(_path)
+        if not isinstance(self.grid_cent, dict):
+            self.set_grid_json(_path)
         im = self.open_im(_path)
         _rfu = self.calculate_rfu(im)
         if is_outf:
@@ -119,10 +120,9 @@ class SrtRfu16:
         return _rfu
 
     def set_grid_json(self, im_path):
-        if not isinstance(self.grid_cent, dict):
-            try:
-                with open('{}/grid.json'.format(im_path.parent), 'r') as f:
-                    self.grid_cent = json.load(f)
-            except FileNotFoundError:
-                print('grid json is not found')
-                raise
+        try:
+            with open('{}/grid.json'.format(im_path.parent), 'r') as f:
+                self.grid_cent = json.load(f)
+        except FileNotFoundError:
+            print('grid json is not found')
+            raise
