@@ -125,4 +125,5 @@ class SrtRfu16:
                 self.grid_cent = json.load(f)
         except FileNotFoundError:
             print('grid json is not found')
-            raise
+            ref_path = im_path.parent/'ref.jpg'
+            self.set_grid(ref_path)
