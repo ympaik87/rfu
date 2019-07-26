@@ -15,9 +15,10 @@ import numpy as np
 
 
 class SrtRfu16Dev(SrtRfu16):
-    def __init__(self, exp_path, dye_exempt=None):
+    def __init__(self, folder_path, dye_exempt=None):
         super().__init__()
-        self.exp_path = pathlib.Path(exp_path)
+        self.cam_path = pathlib.Path(folder_path)
+        self.exp_path = self.cam_path.parent
         self.colors_li = [plt.cm.get_cmap('hsv', 30)(i) for i in range(30)]
         self.temp_li = ['Low Temp', 'High Temp']
         self.cam_key = 'main'
@@ -63,8 +64,8 @@ class SrtRfu16Dev(SrtRfu16):
         print('\nFinish creating RFU table in {} sec.'.format(time.time()-t))
     
     def to_mp_rfu(self, paramlist):
-        im_path = str(self.exp_path/'{}/{}_{}_{}.jpg'.format(
-            self.cam_key, paramlist[2], paramlist[0], paramlist[1]))
+        im_path = str(self.cam_path/'{}_{}_{}.jpg'.format(
+            paramlist[2], paramlist[0], paramlist[1]))
         _rfu = self.mp_rfu(im_path, is_outf=False)
         return str(paramlist), _rfu
         
