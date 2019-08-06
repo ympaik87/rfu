@@ -1,5 +1,6 @@
 from collections import OrderedDict
 import pathlib
+import json
 from .srt_rfu16 import SrtRfu16
 
 
@@ -24,8 +25,15 @@ class SrtRfuWell(SrtRfu16):
             rfu_adj = {}
             for well, val in _rfu.items():
                 well_ind = self.well_name[0].index(well)
-                rfu_adj[self.well_name[well_ind]] = val
+                rfu_adj[self.well_name[int(cam_ind)][well_ind]] = val
+            if is_outf:
+                self.export_json(_path, rfu_adj)
             return rfu_adj
-
         else:
+            if is_outf:
+                self.export_json(_path, _rfu)
             return _rfu
+
+    def export_json(self, _path, rfu_dic):
+        with open("{}/{}.json".format(_path.parent, _path.stem), "w") as f:
+                json.dump(rfu_dic, f)
