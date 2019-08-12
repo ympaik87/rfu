@@ -1,6 +1,6 @@
 import argparse
 import subprocess
-from srt_rfu.srt_rfu16_dev import SrtRfu16
+from srt_rfu.srt_rfu16_dev import SrtRfu16Dev
 
 
 def main(args):
@@ -13,14 +13,10 @@ def main(args):
         tc = int(args.tc)
     else:
         tc = 45
-    _rfu = SrtRfu16(args.exp_path, args.dye_exempt)
+    _rfu = SrtRfu16Dev(args.exp_path, args.dye_exempt)
     if args.is_onefile == 's':
         print('is single file')
-        _rfu.get_single_result()
-    elif args.is_onefile == 'i':
-        print('is onefile', args.temp, args.dye, args.cycle, args.well)
-        _rfu.get_onef_result(
-            args.temp, args.dye, args.cycle, args.well, tc=tc)
+        _rfu.get_single_result(args.exp_path)
     else:
         _rfu.get_datasheet(tc)
 
