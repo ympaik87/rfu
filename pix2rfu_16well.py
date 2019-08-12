@@ -6,8 +6,6 @@ from srt_rfu.srt_rfu16_dev import SrtRfu16Dev
 def main(args):
     print(args)
     print('path', args.exp_path)
-    print('except col', args.exempt_col)
-    print('except row', args.exempt_row)
     if args.tc:
         print('TC', args.tc)
         tc = int(args.tc)
@@ -32,9 +30,6 @@ if __name__ == '__main__':
         'exp_path', help='Path of the experiment directory, '
         'which contains main and sub folders for result images. '
         'If there are spaces within the path, add quotation marks.')
-    parser.add_argument('-c', '--exempt_col', nargs='+',
-                        choices=list(range(1, 9)))
-    parser.add_argument('-r', '--exempt_row', nargs='+', choices=list('ABCD'))
     parser.add_argument('-d', '--dye_exempt', nargs='+',
                         choices=['f', 'h', 'c', 'q6', 'q7'],
                         help='notify missing dye')
@@ -42,16 +37,6 @@ if __name__ == '__main__':
     subparsers = parser.add_subparsers(
         title='onefile', dest='is_onefile',
         description='get image processing result from a file')
-    parser_onef = subparsers.add_parser('i')
-    parser_onef.add_argument('temp', choices=['low', 'high'])
-    parser_onef.add_argument('dye', choices=['f', 'h', 'c', 'q6', 'q7'])
-    parser_onef.add_argument('-d', '--dye_exempt', nargs='+',
-                             choices=['f', 'h', 'c', 'q6', 'q7'],
-                             help='notify missing dye')
-    parser_onef.add_argument('cycle')
-    well_li = [x+z+str(y+1) for x in list(
-        'ABCDabcd') for y in range(8) for z in ['', '0']]
-    parser_onef.add_argument('well', choices=well_li)
     parser_single = subparsers.add_parser('s')
     args = parser.parse_args()
     main(args)
