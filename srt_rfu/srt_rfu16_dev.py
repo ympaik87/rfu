@@ -22,8 +22,10 @@ class SrtRfu16Dev(SrtRfu16):
         self.colors_li = [plt.cm.get_cmap('hsv', 30)(i) for i in range(30)]
         self.temp_li = ['Low Temp', 'High Temp']
         self.cam_key = 'main'
-        self.datetime = datetime.datetime.now().strftime('-%y%m%d_%H%M%S')
         self.get_dye_dict(dye_exempt)
+        
+    def get_datetime(self):
+        return datetime.datetime.now().strftime('-%y%m%d_%H%M%S')
         
     def get_dye_dict(self, dye_exempt):
         dye_init = OrderedDict([
@@ -91,7 +93,7 @@ class SrtRfu16Dev(SrtRfu16):
             self.version)
         qs_li = ['QuantStep1', 'QuantStep2']
         self.make_rfu_table(tc=tc)
-        res_dir = self.exp_path/('DSP_datasheet' + self.datetime)
+        res_dir = self.exp_path/('DSP_datasheet' + self.get_datetime())
         res_dir.mkdir()
         for ind, temp in enumerate(self.temp_li):
             qs_path = res_dir/qs_li[ind]
@@ -152,7 +154,7 @@ class SrtRfu16Dev(SrtRfu16):
             im_path.name, self.version)
         outf_path = im_path.parents[1]/(
             'Single_Result_{}-{}'.format(self.version, im_path.stem) +
-            self.datetime + '.jpg')
+            self.get_datetime() + '.jpg')
 
         rfu_dict = self.mp_rfu(im_path_in, is_outf=False)
         fig, ax = plt.subplots(2, 3, figsize=(18, 12), constrained_layout=True)
