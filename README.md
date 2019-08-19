@@ -44,13 +44,16 @@ $ python pix2rfu_16well.py "F:/path to a 16 well image" s
 ```
 
 ![Result Image2](doc/Single_Result_2fa4d62-0_0_c-190812_135311_(new).jpg)
-It is composed of 4 images, and one data table.
+It is composed of 4 images, a heatmap, and one data table.
 
 * Original: the original image from camera with cropping area as a red rectangle
 * Gray: the 2D density plot from cropped image with sum of RGB
 * Reference: the reference image for locating wells
 * Processed Result: the result image with objects with well location
-* Data table: table of RFU values, which are sum of RGB, corresponding to their well location
+* Data table: table of RFU values, which are sum of RGB, corresponding to their
+  well location
+* Heatmap: show each RFUs devided by the mean of the 16well RFUs in order to
+  visualize their uniformity.
 
 Similary, you can generate the image result with previous algorithm
 
@@ -60,7 +63,7 @@ $ python pix2rfu_16well_legacy.py "F:/path to a 16 well image" s
 
 This will produce the following images.
 ![Result Image](doc/Single_Result_2fa4d62-0_0_c_(old).jpg)
-It is composed of 4 images, and one data table.
+It is composed of 4 images, a heatmap, and one data table.
 
 * Original: the original image from camera with cropping area as a red rectangle
 * Gray: the 2D density plot from cropped image with sum of RGB
@@ -68,6 +71,8 @@ It is composed of 4 images, and one data table.
 * Processed Result: the result image with objects with well location
 * Data table: table of RFU values, which are sum of RGB, corresponding to their
   well location
+* Heatmap: show each RFUs devided by the mean of the 16well RFUs in order to
+visualize their uniformity.
 
 ## Requirements
 
@@ -82,6 +87,7 @@ It is composed of 4 images, and one data table.
 ```bash
 $ git clone https://github.com/ympaik87/rfu.git
 $ conda create -n rfu python=3.5.3
+# used python 3.5 because RP3's default Python version is the one
 $ activate rfu
 $ cd rfu
 $ pip install -r requirements.txt
